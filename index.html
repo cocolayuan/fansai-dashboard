@@ -1,0 +1,1582 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FansAI · Global Content Science</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Fira+Sans:wght@300;400;500;600;700;800&family=Fraunces:opsz,ital,wght@9..144,1,300;9..144,1,400&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* museum / gallery palette · dark */
+    --bg:#0c0b0a;
+    --bg-2:#15130f;
+    --panel:#16140f;
+    --panel-2:#1c1a14;
+    --panel-3:#241f17;
+    --line:#2a251c;
+    --line-2:#3a3225;
+    --bone:#ece4d3;           /* primary text — parchment */
+    --bone-d:#c9bfa9;
+    --muted:#8a8170;
+    --dim:#5a5246;
+    --ink:#0a0908;
+
+    /* accents — muted museum pigments */
+    --ochre:#c89456;
+    --terra:#b45a3c;
+    --sage:#7d8b6e;
+    --indigo:#5b6485;
+    --rouge:#8a3a3a;
+    --moss:#4b5b3a;
+
+    --acc:var(--ochre);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--bone);
+    font-family:'Fira Sans','Noto Sans SC',system-ui,sans-serif;
+    height:100%;overflow:hidden;letter-spacing:.005em;-webkit-font-smoothing:antialiased}
+  .mono{font-family:'Fira Code',monospace}
+  .serif{font-family:'Fraunces',serif;font-style:italic;font-weight:300}
+
+  /* aurora background */
+  .aurora{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .aurora::before,.aurora::after,.aurora b{content:"";position:absolute;border-radius:50%;
+    filter:blur(120px);opacity:.35;animation:drift 22s ease-in-out infinite}
+  .aurora::before{width:520px;height:520px;left:-80px;top:-60px;
+    background:radial-gradient(circle,var(--ochre),transparent 60%)}
+  .aurora::after{width:600px;height:600px;right:-120px;top:30%;
+    background:radial-gradient(circle,var(--terra),transparent 60%);animation-delay:-7s;opacity:.28}
+  .aurora b{display:block;width:680px;height:680px;left:30%;bottom:-200px;
+    background:radial-gradient(circle,var(--indigo),transparent 60%);animation-delay:-14s;opacity:.32}
+  @keyframes drift{
+    0%,100%{transform:translate(0,0) scale(1)}
+    33%{transform:translate(40px,-30px) scale(1.08)}
+    66%{transform:translate(-30px,40px) scale(.94)}
+  }
+  .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.06;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.5'/></svg>")}
+
+  .app{position:relative;z-index:2;display:grid;grid-template-rows:60px 1fr 28px;
+    height:100vh;padding:12px;gap:10px}
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{display:flex;align-items:center;gap:14px;background:rgba(22,20,15,.7);
+    backdrop-filter:blur(20px) saturate(1.2);
+    border:1px solid var(--line);border-radius:16px;padding:0 16px;position:relative;overflow:hidden}
+  .logo{width:38px;height:38px;border-radius:11px;background:var(--bone);color:var(--ink);
+    display:grid;place-items:center;font-weight:800;font-size:18px;letter-spacing:-.04em;
+    font-family:'Fraunces',serif;font-style:italic;
+    box-shadow:inset 0 -2px 4px rgba(0,0,0,.15),0 2px 12px rgba(236,228,211,.15);
+    transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+  .logo:hover{transform:scale(.94)}
+  .brand .kicker{font-size:9.5px;letter-spacing:.32em;color:var(--muted);font-weight:500}
+  .brand .title{font-size:15px;font-weight:600;margin-top:2px;letter-spacing:-.005em;color:var(--bone)}
+  .brand .title em{font-family:'Fraunces';font-style:italic;font-weight:300;color:var(--muted);margin-left:6px}
+
+  .search{flex:1;max-width:560px;margin-left:14px;position:relative}
+  .search input{width:100%;height:38px;background:rgba(10,9,8,.6);border:1px solid var(--line);
+    border-radius:11px;color:var(--bone);padding:0 14px 0 38px;font-size:13px;outline:none;
+    font-family:inherit;transition:.25s}
+  .search input::placeholder{color:var(--dim)}
+  .search input:focus{border-color:var(--ochre);background:rgba(10,9,8,.85);
+    box-shadow:0 0 0 4px rgba(200,148,86,.1)}
+  .search svg{position:absolute;left:13px;top:11px;color:var(--muted)}
+  .search .hint{position:absolute;right:8px;top:7px;font-size:10px;color:var(--dim);
+    border:1px solid var(--line);padding:3px 7px;border-radius:6px;background:rgba(10,9,8,.6)}
+  .suggest{position:absolute;top:46px;left:0;right:0;background:rgba(22,20,15,.97);
+    backdrop-filter:blur(20px);border:1px solid var(--line);border-radius:12px;max-height:320px;
+    overflow:auto;z-index:30;display:none;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+  .suggest.open{display:block}
+  .suggest .item{padding:10px 14px;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;
+    align-items:center;border-bottom:1px solid var(--line);transition:background .18s}
+  .suggest .item:last-child{border-bottom:none}
+  .suggest .item:hover,.suggest .item.active{background:rgba(200,148,86,.08)}
+  .suggest .item .reg{color:var(--muted);font-size:11px}
+  .suggest .item .kind{font-size:9px;letter-spacing:.18em;color:var(--ochre);
+    border:1px solid var(--line-2);padding:2px 6px;border-radius:5px;margin-left:8px;text-transform:uppercase}
+
+  .top-right{display:flex;align-items:center;gap:10px}
+  .lang{display:flex;background:rgba(10,9,8,.6);border:1px solid var(--line);border-radius:999px;padding:3px}
+  .lang span{padding:5px 12px;font-size:11px;border-radius:999px;cursor:pointer;color:var(--muted);
+    transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+  .lang span:active{transform:scale(.9)}
+  .lang span.on{background:var(--bone);color:var(--ink);font-weight:600}
+  .live{background:transparent;color:var(--bone);font-weight:500;font-size:11px;padding:7px 14px;
+    border-radius:999px;display:flex;align-items:center;gap:7px;cursor:pointer;
+    border:1px solid var(--line-2);letter-spacing:.12em;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+  .live:hover{border-color:var(--ochre);color:var(--ochre)}
+  .live:active{transform:scale(.94)}
+  .live .dot{width:6px;height:6px;border-radius:50%;background:var(--ochre);
+    box-shadow:0 0 8px var(--ochre);animation:blink 1.4s infinite}
+  @keyframes blink{50%{opacity:.25}}
+
+/* ---------- MAIN ---------- */
+  .main{display:grid;grid-template-columns:340px 1fr 360px;gap:10px;min-height:0}
+  .rstack{display:flex;flex-direction:column;gap:10px;min-height:0;height:100%}
+  .rpanel-top,.rpanel-bot{flex:1 1 50%;min-height:0;position:relative}
+  .dots{display:flex;justify-content:center;gap:5px;padding:8px 0 12px;border-top:1px solid var(--line);
+    background:rgba(10,9,8,.3)}
+  .dots .d{width:5px;height:5px;border-radius:50%;background:var(--dim-2);transition:all .3s}
+  .dots .d.on{background:var(--ochre);box-shadow:0 0 6px rgba(200,148,86,.6);width:18px;border-radius:99px}
+  .signals{flex:1;overflow:hidden;padding:8px 10px}  /* override scroll for rotation mode */
+  .sig-stage{display:flex;flex-direction:column;gap:7px;animation:fadeIn .4s ease-out}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+  .panel{background:rgba(22,20,15,.65);backdrop-filter:blur(18px) saturate(1.1);
+    border:1px solid var(--line);border-radius:18px;
+    display:flex;flex-direction:column;min-height:0;overflow:hidden;position:relative;
+    box-shadow:0 1px 0 rgba(236,228,211,.04) inset,0 24px 60px rgba(0,0,0,.35)}
+
+  .ph{padding:16px 18px 12px;border-bottom:1px solid var(--line);position:relative}
+  .ph .ki{font-size:9.5px;letter-spacing:.3em;color:var(--muted);font-weight:500;
+    display:flex;justify-content:space-between;align-items:center}
+  .ph .ki .ct{color:var(--ochre);font-family:'Fira Code'}
+  .ph .ti{font-size:16px;font-weight:600;margin-top:4px;letter-spacing:-.005em}
+  .ph .ti em{font-family:'Fraunces';font-style:italic;font-weight:300;color:var(--muted);font-size:13px;margin-left:6px}
+
+  /* ---------- LEFT: cases ---------- */
+  .list{flex:1;overflow:auto;padding:8px 12px 14px}
+  .crow{display:flex;gap:12px;align-items:center;padding:11px;border-radius:14px;background:rgba(10,9,8,.4);
+    margin-bottom:8px;cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1);
+    border:1px solid transparent;position:relative}
+  .crow:hover{border-color:var(--line-2);background:rgba(36,31,23,.6)}
+  .crow:active{transform:scale(.99)}
+  .crow.on{border-color:var(--ochre);background:rgba(200,148,86,.07);
+    box-shadow:0 0 0 1px rgba(200,148,86,.18),inset 0 1px 0 rgba(236,228,211,.04)}
+  .crow .rk-chip{width:36px;height:36px;border-radius:50%;background:var(--bone-d);color:var(--ink);
+    display:grid;place-items:center;font-weight:700;font-size:13px;font-family:'Fira Code';flex-shrink:0;
+    letter-spacing:-.02em;box-shadow:inset 0 -2px 3px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.3);
+    transition:background .25s}
+  .crow.on .rk-chip{background:var(--ochre)}
+  .crow:nth-child(n+4) .rk-chip{background:#36312a;color:var(--bone-d);box-shadow:inset 0 -1px 2px rgba(0,0,0,.2)}
+  .crow .thumb{width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,var(--panel-2),var(--panel-3));
+    border:1px solid var(--line);flex-shrink:0;position:relative;overflow:hidden}
+  .crow .thumb::after{content:"";position:absolute;inset:8px;border:1px dashed rgba(236,228,211,.08);border-radius:6px}
+  .crow .thumb::before{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;
+    transform:translate(-50%,-50%);
+    background:linear-gradient(135deg,transparent 40%,rgba(200,148,86,.25) 50%,transparent 60%);
+    border-radius:50%}
+  .crow .ci{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+  .crow .ci .nm{font-size:13px;font-weight:600;color:var(--bone);letter-spacing:-.005em;line-height:1.3;
+    overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+  .crow .heat-row{display:flex;align-items:baseline;gap:6px}
+  .crow .heat{font-size:22px;font-weight:700;font-family:'Fira Code';color:var(--ochre);
+    letter-spacing:-.04em;line-height:1}
+  .crow .heat-lb{font-size:10px;color:var(--muted);letter-spacing:.04em}
+  .crow .region{font-size:9.5px;color:var(--bone-d);padding:3px 9px;border:1px solid var(--line-2);
+    border-radius:99px;align-self:flex-start;letter-spacing:.04em;background:rgba(10,9,8,.5);
+    font-family:'Fira Code'}
+  .tag{font-size:9.5px;color:var(--muted);padding:2px 7px;border-radius:5px;
+    border:1px solid var(--line-2);letter-spacing:.04em}
+  .tag.k{color:var(--ochre);border-color:rgba(200,148,86,.4)}
+  .tag.s{color:var(--sage);border-color:rgba(125,139,110,.4)}
+  .tag.t{color:var(--terra);border-color:rgba(180,90,60,.4)}
+  .mt{font-family:'Fira Code';font-size:10px;color:var(--muted);margin-top:7px;display:flex;gap:10px}
+  .mt b{color:var(--bone);font-weight:600}
+
+  /* ---------- CENTER: globe ---------- */
+  .center{position:relative;overflow:hidden}
+  .center .ph{position:absolute;top:0;left:0;right:0;border:none;background:linear-gradient(180deg,rgba(22,20,15,.85),transparent);z-index:5}
+
+  .kpis{position:absolute;top:18px;right:18px;display:flex;gap:8px;z-index:5}
+  .kpi{background:rgba(22,20,15,.75);backdrop-filter:blur(14px);border:1px solid var(--line);
+    border-radius:13px;padding:10px 14px;min-width:96px}
+  .kpi .l{font-size:9px;color:var(--muted);letter-spacing:.22em;font-weight:500}
+  .kpi .v{font-size:22px;font-weight:600;margin-top:3px;font-family:'Fira Code';letter-spacing:-.03em;color:var(--bone)}
+  .kpi .v em{font-family:'Fraunces';font-style:italic;font-size:14px;color:var(--ochre);margin-left:2px;font-weight:300}
+  .kpi .d{font-size:10px;color:var(--sage);margin-top:2px;font-family:'Fira Code'}
+  .kpi .d.dn{color:var(--terra)}
+
+  #globe{position:absolute;inset:0;z-index:2}
+  .vignette{position:absolute;inset:0;z-index:3;pointer-events:none;
+    background:radial-gradient(circle at center,transparent 30%,rgba(12,11,10,.6) 90%)}
+
+  .crosshair{position:absolute;left:50%;top:50%;width:80px;height:80px;transform:translate(-50%,-50%);
+    z-index:4;pointer-events:none;opacity:.25}
+  .crosshair::before,.crosshair::after{content:"";position:absolute;background:var(--bone)}
+  .crosshair::before{left:50%;top:0;bottom:0;width:1px;transform:translateX(-.5px)}
+  .crosshair::after{top:50%;left:0;right:0;height:1px;transform:translateY(-.5px)}
+  .crosshair .c{position:absolute;left:50%;top:50%;width:8px;height:8px;
+    border:1px solid var(--ochre);border-radius:50%;transform:translate(-4px,-4px);
+    box-shadow:0 0 12px rgba(200,148,86,.5)}
+
+  .ccard{position:absolute;left:18px;bottom:18px;z-index:5;
+    background:rgba(22,20,15,.92);backdrop-filter:blur(20px);border:1px solid var(--line);
+    border-radius:18px;padding:18px 20px;min-width:320px;max-width:380px;
+    box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(236,228,211,.05)}
+  .ccard .top{display:flex;align-items:center;gap:14px}
+  .ccard .flag{font-size:30px;line-height:1;width:48px;height:48px;
+    display:grid;place-items:center;background:rgba(10,9,8,.6);
+    border:1px solid var(--line-2);border-radius:12px;filter:grayscale(.4) contrast(1.05)}
+  .ccard .nm{font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--bone)}
+  .ccard .zh{font-size:11px;color:var(--muted);margin-top:2px}
+  .ccard .iso{font-size:9.5px;color:var(--dim);letter-spacing:.22em;font-family:'Fira Code';margin-top:5px}
+  .cc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+  .cc{background:rgba(10,9,8,.5);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+  .cc .l{font-size:9.5px;color:var(--muted);letter-spacing:.18em}
+  .cc .v{font-size:16px;font-weight:600;margin-top:4px;font-family:'Fira Code';color:var(--bone)}
+  .cc .v.oc{color:var(--ochre)}
+  .cc .v.sg{color:var(--sage)}
+  .cc-cli{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+  .cc-cli .l{font-size:9.5px;color:var(--muted);letter-spacing:.22em;margin-bottom:8px}
+  .cc-cli .chips{display:flex;gap:5px;flex-wrap:wrap}
+  .chip{font-size:10.5px;padding:4px 9px;border:1px solid var(--line-2);border-radius:6px;
+    color:var(--bone);background:rgba(10,9,8,.4);letter-spacing:.02em;
+    transition:all .2s cubic-bezier(.34,1.56,.64,1);cursor:default}
+  .chip:hover{border-color:var(--ochre);color:var(--ochre);transform:translateY(-1px)}
+  .cc-bar{margin-top:12px}
+  .cc-bar .lb{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-bottom:6px;
+    letter-spacing:.05em}
+  .cc-bar .lb b{color:var(--bone);font-weight:600;font-family:'Fira Code'}
+  .bar{height:4px;background:rgba(10,9,8,.6);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ochre),var(--terra));
+    border-radius:99px;transition:width .8s cubic-bezier(.22,1,.36,1);box-shadow:0 0 8px rgba(200,148,86,.4)}
+
+  .legend{position:absolute;right:18px;bottom:18px;z-index:5;display:flex;flex-direction:column;gap:7px;
+    background:rgba(22,20,15,.75);backdrop-filter:blur(14px);padding:12px 14px;border-radius:12px;
+    border:1px solid var(--line);font-size:10.5px;color:var(--muted);letter-spacing:.04em;min-width:160px}
+  .legend .lt{font-size:9px;letter-spacing:.24em;color:var(--dim);margin-bottom:2px}
+  .legend .row{display:flex;align-items:center;gap:8px;justify-content:space-between}
+  .legend .row .lf{display:flex;align-items:center;gap:8px}
+  .legend .sw{width:8px;height:8px;border-radius:50%;background:var(--ochre);box-shadow:0 0 6px var(--ochre)}
+  .legend .sw.s2{background:var(--sage);box-shadow:0 0 6px rgba(125,139,110,.5)}
+  .legend .sw.s3{background:var(--dim);box-shadow:none}
+  .legend .n{color:var(--bone);font-family:'Fira Code';font-size:10px}
+
+  .ticker{position:absolute;left:18px;top:60px;z-index:5;display:flex;gap:8px;align-items:center;
+    background:rgba(22,20,15,.72);backdrop-filter:blur(14px);padding:7px 12px;border-radius:99px;
+    border:1px solid var(--line);font-size:11px}
+  .ticker .pulse{width:6px;height:6px;border-radius:50%;background:var(--ochre);
+    box-shadow:0 0 10px var(--ochre);animation:blink 1.4s infinite}
+  .ticker .t{color:var(--muted);letter-spacing:.04em}
+  .ticker b{color:var(--bone);font-weight:500;margin:0 2px;font-family:'Fira Code';font-size:10.5px}
+
+  /* ---------- RIGHT: signals + sub-tabs ---------- */
+  /* country dropdown · mounted on .ccard (already position:absolute at bottom-left), menu opens upward */
+  .ccard .cdd-trigger{background:rgba(10,9,8,.5);border:1px solid var(--line-2);border-radius:8px;
+    width:28px;height:28px;display:grid;place-items:center;color:var(--muted);cursor:pointer;
+    transition:all .22s cubic-bezier(.34,1.56,.64,1);flex-shrink:0;padding:0;align-self:center}
+  .ccard .cdd-trigger:hover{border-color:var(--ochre);color:var(--ochre);background:rgba(200,148,86,.08)}
+  .ccard .cdd-trigger:active{transform:scale(.92)}
+  .ccard .cdd-trigger svg{transition:transform .25s}
+  .ccard.open .cdd-trigger{border-color:var(--ochre);color:var(--ochre);background:rgba(200,148,86,.12)}
+  .ccard.open .cdd-trigger svg{transform:rotate(180deg)}
+  .ccard .menu{position:absolute;bottom:calc(100% + 8px);top:auto;left:0;right:0;
+    background:rgba(22,20,15,.97);backdrop-filter:blur(20px);
+    border:1px solid var(--line-2);border-radius:12px;max-height:0;overflow:hidden;z-index:40;
+    box-shadow:0 -16px 48px rgba(0,0,0,.6);
+    transition:max-height .3s cubic-bezier(.22,1,.36,1),opacity .2s;opacity:0;pointer-events:none}
+  .ccard.open .menu{max-height:420px;overflow:auto;opacity:1;pointer-events:auto}
+  .cdd .search-in{width:100%;padding:10px 12px 10px 36px;background:rgba(10,9,8,.5);
+    border:none;border-bottom:1px solid var(--line);color:var(--bone);font-size:12px;
+    outline:none;font-family:inherit}
+  .cdd .search-in::placeholder{color:var(--dim)}
+  .cdd .search-ic{position:absolute;left:30px;top:13px;color:var(--muted);pointer-events:none}
+  .cdd .grp{font-size:9px;letter-spacing:.24em;color:var(--dim);padding:10px 14px 4px;
+    font-family:'Fira Code'}
+  .cdd .opt{display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:12.5px;
+    cursor:pointer;transition:background .15s;color:var(--bone)}
+  .cdd .opt:hover{background:rgba(200,148,86,.08)}
+  .cdd .opt.on{background:rgba(200,148,86,.12)}
+  .cdd .opt .of{font-size:18px;width:24px;text-align:center;filter:grayscale(.3)}
+  .cdd .opt .oz{color:var(--muted);font-size:10.5px;margin-left:auto}
+  .cdd .opt .ot{width:6px;height:6px;border-radius:50%;background:var(--ochre);box-shadow:0 0 6px var(--ochre)}
+  .cdd .opt .ot.t1{background:var(--sage);box-shadow:0 0 6px rgba(125,139,110,.5)}
+  .cdd .opt .ot.t2{background:var(--dim);box-shadow:none}
+
+  .sig{background:rgba(10,9,8,.4);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+    transition:all .25s cubic-bezier(.34,1.56,.64,1);cursor:default}
+  .sig:hover{border-color:var(--line-2);background:rgba(36,31,23,.5)}
+  .sig .hd{display:flex;gap:8px;align-items:flex-start;justify-content:space-between}
+  .sig .who{font-size:12px;color:var(--bone);font-weight:600;letter-spacing:-.005em;line-height:1.3}
+  .sig .src{font-size:10px;color:var(--muted);margin-top:2px;letter-spacing:.03em}
+  .sig .pill{font-size:9px;color:var(--ochre);border:1px solid rgba(200,148,86,.35);
+    padding:2px 6px;border-radius:5px;letter-spacing:.16em;background:rgba(200,148,86,.05)}
+  .sig .pill.gr{color:var(--sage);border-color:rgba(125,139,110,.35);background:rgba(125,139,110,.05)}
+  .sig .pill.tr{color:var(--terra);border-color:rgba(180,90,60,.35);background:rgba(180,90,60,.05)}
+  .sig .pill.in{color:var(--indigo);border-color:rgba(91,100,133,.35);background:rgba(91,100,133,.05)}
+  .sig .txt{font-size:11.5px;color:var(--bone-d);margin-top:7px;line-height:1.5;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .sig .pills{display:flex;gap:5px;align-items:center;flex-shrink:0}
+  .ori-btn{font-size:9px;color:var(--muted);border:1px solid var(--line-2);
+    padding:2px 7px;border-radius:5px;letter-spacing:.14em;cursor:pointer;
+    transition:all .2s cubic-bezier(.34,1.56,.64,1);font-family:'Fira Code';background:transparent;
+    display:inline-flex;align-items:center;gap:4px}
+  .ori-btn:hover{border-color:var(--ochre);color:var(--ochre)}
+  .ori-btn.on{background:rgba(200,148,86,.12);color:var(--ochre);border-color:rgba(200,148,86,.5)}
+  .ori-btn:active{transform:scale(.92)}
+  .ori-btn svg{width:9px;height:9px;opacity:.7}
+
+  /* view templates: markets / caps / press / awards / contact */
+  .vlist{flex:1;overflow:auto;padding:10px 12px 14px}
+  .mkt-row{display:flex;align-items:center;gap:10px;padding:11px;border-radius:12px;
+    background:rgba(10,9,8,.4);margin-bottom:5px;cursor:pointer;border:1px solid transparent;
+    transition:all .22s cubic-bezier(.34,1.56,.64,1)}
+  .mkt-row:hover{border-color:var(--line-2);background:rgba(36,31,23,.6);transform:translateX(2px)}
+  .mkt-row.on{border-color:var(--ochre);background:rgba(200,148,86,.06)}
+  .mkt-row .mf{font-size:18px;width:30px;height:30px;display:grid;place-items:center;
+    background:rgba(10,9,8,.5);border:1px solid var(--line);border-radius:7px;filter:grayscale(.3)}
+  .mkt-row .mn{flex:1;min-width:0}
+  .mkt-row .mn b{font-size:13px;font-weight:600;color:var(--bone);letter-spacing:-.005em}
+  .mkt-row .mn small{display:block;font-size:10.5px;color:var(--muted);margin-top:2px}
+  .mkt-row .mv{font-family:'Fira Code';font-size:10.5px;color:var(--muted);text-align:right;line-height:1.4}
+  .mkt-row .mv b{color:var(--bone);font-weight:600;display:block;font-size:13px}
+  .mkt-row .dot{width:6px;height:6px;border-radius:50%;background:var(--ochre)}
+  .mkt-row .dot.t1{background:var(--sage)} .mkt-row .dot.t2{background:var(--dim)}
+
+  .cap-card{padding:13px 14px;border-radius:12px;background:rgba(10,9,8,.4);
+    margin-bottom:6px;border:1px solid var(--line);transition:all .22s cubic-bezier(.34,1.56,.64,1);cursor:pointer}
+  .cap-card:hover{border-color:var(--line-2);background:rgba(36,31,23,.5)}
+  .cap-card .ch{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .cap-card .ci{width:28px;height:28px;background:rgba(200,148,86,.1);border:1px solid rgba(200,148,86,.3);
+    border-radius:8px;display:grid;place-items:center;color:var(--ochre);flex-shrink:0}
+  .cap-card .cn{flex:1;font-size:13px;font-weight:600;color:var(--bone);letter-spacing:-.005em}
+  .cap-card .cs{font-size:9.5px;color:var(--muted);font-family:'Fira Code';letter-spacing:.18em}
+  .cap-card .cd{font-size:11px;color:var(--bone-d);margin-top:8px;line-height:1.55}
+
+  .vempty{padding:24px;text-align:center;color:var(--muted);font-size:12px}
+
+  /* review card */
+  .rev-card{background:rgba(10,9,8,.45);border:1px solid var(--line);border-radius:12px;padding:11px 12px;
+    transition:all .25s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden}
+  .rev-card:hover{border-color:var(--line-2);background:rgba(36,31,23,.55)}
+  .rev-card::before{content:'"';position:absolute;top:-12px;right:10px;font-family:'Fraunces';font-style:italic;
+    font-weight:300;font-size:54px;color:rgba(200,148,86,.13);line-height:1;pointer-events:none}
+  .rev-card .rh{display:flex;align-items:center;gap:8px;margin-bottom:7px;position:relative}
+  .rev-card .av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--ochre),var(--terra));color:var(--ink);
+    font-family:'Fraunces';font-style:italic;font-weight:400;font-size:12px;flex-shrink:0}
+  .rev-card .rn{flex:1;min-width:0}
+  .rev-card .rn b{font-size:12px;color:var(--bone);font-weight:600;letter-spacing:-.005em;display:block;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rev-card .rn small{font-size:10px;color:var(--muted);margin-top:1px;display:block;letter-spacing:.02em;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rev-card .stars{color:var(--ochre);font-size:10px;letter-spacing:1.5px;margin-bottom:5px;position:relative}
+  .rev-card .stars .dim{color:var(--dim-2);letter-spacing:1.5px}
+  .rev-card .rt{font-size:11.5px;color:var(--bone);line-height:1.5;font-family:'Fraunces';font-weight:400;
+    font-style:italic;letter-spacing:-.005em;position:relative;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .rev-card .pills{position:absolute;top:10px;right:10px;display:flex;gap:5px;z-index:2}
+
+  /* ---------- FOOTER ---------- */
+  .footer{display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+    font-size:10px;color:var(--dim);letter-spacing:.2em;font-family:'Fira Code'}
+  .footer .l,.footer .r{display:flex;gap:18px;align-items:center}
+  .footer b{color:var(--muted);font-weight:500}
+  .footer .sep{color:var(--line-2)}
+  .footer .live-dot{width:5px;height:5px;border-radius:50%;background:var(--sage);
+    box-shadow:0 0 6px var(--sage);animation:blink 1.4s infinite}
+
+  ::-webkit-scrollbar{width:5px;height:5px}
+  ::-webkit-scrollbar-thumb{background:#2a251c;border-radius:99px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--ochre)}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  .loader{position:absolute;inset:0;display:grid;place-items:center;background:var(--panel);z-index:20;
+    transition:opacity .6s}
+  .loader.hide{opacity:0;pointer-events:none}
+  .loader .ring{width:36px;height:36px;border:1px solid var(--line);border-top-color:var(--ochre);
+    border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .loader .lt{font-size:10px;color:var(--muted);letter-spacing:.3em;margin-top:14px;font-family:'Fira Code'}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="aurora"><b></b></div>
+<div class="grain"></div>
+
+<div class="app">
+  <!-- TOP -->
+  <div class="topbar">
+    <div class="logo">F</div>
+    <div class="brand">
+      <div class="kicker">FANSAI · CONTENT SCIENCE COMPANY</div>
+      <div class="title">Global Footprint <em>— 出海业务地图</em></div>
+    </div>
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="searchInput" placeholder="搜索国家 / 城市 / 客户 / 项目  ·  e.g. Disney, Tokyo, Momcozy" autocomplete="off"/>
+      <div class="hint mono">⌘ K</div>
+      <div class="suggest" id="suggest"></div>
+    </div>
+    <div class="top-right">
+      <div class="lang" id="langTog"><span data-l="en">EN</span><span class="on" data-l="zh">中</span></div>
+      <div class="live"><span class="dot"></span><span id="liveLb">LIVE</span></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- LEFT (dynamic by view) -->
+    <div class="panel" id="leftPanel"></div>
+
+    <!-- CENTER -->
+    <div class="panel center">
+      <div class="ph" style="background:linear-gradient(180deg,rgba(22,20,15,.9),transparent);padding-bottom:24px">
+        <div class="ki"><span>GLOBAL MARKET FOOTPRINT · 2024 — 2026</span><span class="ct">22 / 86</span></div>
+        <div class="ti">世界地图总览 <em>— drag to locate market</em></div>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">MARKETS</div><div class="v" id="cddCt">10</div><div class="d">↗ +4 YoY</div></div>
+        <div class="kpi"><div class="l">CAMPAIGNS</div><div class="v" id="kpiCamp">147</div><div class="d">↗ +12 Q</div></div>
+        <div class="kpi"><div class="l">AWARDS</div><div class="v">30<em>+</em></div><div class="d">2025 cycle</div></div>
+      </div>
+      <div class="ticker">
+        <span class="pulse"></span>
+        <span class="t">RENDER</span><b id="tCity">London</b>
+        <span class="t">/</span><b id="tProj">TVC #A24</b>
+        <span class="t">/</span><b id="tStat">04:12 ETA</b>
+      </div>
+      <div id="globe"></div>
+      <div class="vignette"></div>
+      <div class="crosshair"><span class="c"></span></div>
+      <div class="ccard" id="ccard">
+        <div class="top">
+          <div class="flag" id="cFlag">🇺🇸</div>
+          <div style="flex:1;min-width:0">
+            <div class="nm" id="cName">United States</div>
+            <div class="zh" id="cZh">美国 · 北美</div>
+            <div class="iso" id="cIso">USA · N-AMERICA</div>
+          </div>
+          <button class="cdd-trigger" id="cddBtn" aria-label="Switch market" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="menu" id="cddMenu">
+          <div style="position:relative">
+            <svg class="search-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input class="search-in" id="cddSearch" placeholder="筛选国家或地区..." />
+          </div>
+          <div id="cddList"></div>
+        </div>
+        <div class="cc-grid">
+          <div class="cc"><div class="l">CAMPAIGNS</div><div class="v oc" id="cCamp">18</div></div>
+          <div class="cc"><div class="l">REACH</div><div class="v" id="cReach">42M</div></div>
+          <div class="cc"><div class="l">OOH SITES</div><div class="v" id="cOoh">6</div></div>
+          <div class="cc"><div class="l">AWARDS</div><div class="v sg" id="cAw">7</div></div>
+        </div>
+        <div class="cc-cli">
+          <div class="l">ACTIVE CLIENTS</div>
+          <div class="chips" id="cChips"></div>
+        </div>
+        <div class="cc-bar">
+          <div class="lb"><span>MARKET PENETRATION</span><b id="cPenLb">62%</b></div>
+          <div class="bar"><i id="cPen" style="width:62%"></i></div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="lt">MARKET TIER</div>
+        <div class="row"><div class="lf"><span class="sw"></span>Strategic 核心</div><span class="n">06</span></div>
+        <div class="row"><div class="lf"><span class="sw s2"></span>Active 活跃</div><span class="n">11</span></div>
+        <div class="row"><div class="lf"><span class="sw s3"></span>Emerging 拓展</div><span class="n">05</span></div>
+      </div>
+      <div class="loader" id="loader"><div style="display:flex;flex-direction:column;align-items:center"><div class="ring"></div><div class="lt">CALIBRATING GLOBE</div></div></div>
+    </div>
+
+    <!-- RIGHT — split into top (Reviews) + bottom (Honors), both auto-rotate every 5s -->
+    <div class="rstack">
+      <div class="panel rpanel-top">
+        <div class="ph">
+          <div class="ki"><span id="sigKickerEl">SIGNALS</span><span class="ct">LIVE · 5s</span></div>
+          <div class="ti" id="sigTitleEl">客户口碑 <em>— client reviews</em></div>
+        </div>
+        <div class="signals" id="signals"></div>
+        <div class="dots" id="reviewDots"></div>
+      </div>
+      <div class="panel rpanel-bot">
+        <div class="ph">
+          <div class="ki"><span id="honKickerEl">HONORS</span><span class="ct">LIVE · 5s</span></div>
+          <div class="ti" id="honTitleEl">荣誉 <em>— honors</em></div>
+        </div>
+        <div class="signals" id="honors"></div>
+        <div class="dots" id="honorDots"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="l">
+      <span class="live-dot"></span>
+      <b>FANSAI / FSCITY.ART</b>
+      <span class="sep">/</span>
+      <span>v2.6 · MARKETRACK</span>
+      <span class="sep">/</span>
+      <span>EDITION 0430</span>
+    </div>
+    <div class="r">
+      <span>CONTENT IS BUSINESS</span>
+      <span class="sep">·</span>
+      <span>AI-NATIVE / SINCE 2024</span>
+      <span class="sep">·</span>
+      <span>nico.zeng@fscity.art</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/globe.gl@2.27.2/dist/globe.gl.min.js"></script>
+<script>
+// ============================================================
+// i18n  ·  EN = English chrome + native press quotes  /  ZH = 中文
+// ============================================================
+const I18N = {
+  zh:{
+    brandTitle:'出海业务地图', brandSub:'— Global Footprint',
+    searchPh:'搜索国家 / 城市 / 客户 / 项目  ·  例：Disney、Tokyo、Momcozy',
+    nav:{overview:'总览',markets:'市场',caps:'能力矩阵'},
+    meta:{fy:'财年',q:'季度',series:'融资',utc:'UTC'},
+    lCases:{kicker:'内容排行榜',title:'内容排行榜',sub:'— trending board',
+      hint:'支持点击切换，10 秒自动轮播', heatLb:'热度值'},
+    centerKicker:'全球市场足迹  ·  2024 — 2026', centerTitle:'世界地图总览', centerSub:'— 拖动定位市场',
+    kpis:{markets:'覆盖市场',camp:'营销战役',awards:'获奖'},
+    tickerLead:'渲染中',
+    cc:{camp:'战役',reach:'触达',ooh:'OOH 投放',aw:'获奖',cli:'活跃客户',pen:'市场渗透'},
+    legend:{title:'市场分级',strat:'核心',act:'活跃',emerg:'拓展'},
+    sigKicker:'用户评价', sigTitle:'客户口碑', sigSub:'— client reviews',
+    honKicker:'荣誉', honTitle:'奖项 · 媒体', honSub:'— honors',
+    cdd:{label:'聚焦市场', mk:'个市场', searchPh:'筛选国家或地区...',
+         tiers:{0:'核心市场',1:'活跃市场',2:'拓展市场'}},
+    rtabs:{reviews:'用户评价'},
+    pills:{AWARD:'奖项',CLIENT:'客户',PRESS:'媒体',GROWTH:'增长'},
+    origin:'原文', globalView:'全球视图', dragHint:'· 拖动地球切换本地视图',
+    noSignals:(p)=>`此市场暂无 <b style="color:var(--bone)">${p}</b> 信号。`,
+    sigsCount:'条信号',
+    footL:'v2.6 · 内容雷达', footEd:'版本 0430', footR1:'内容即业务', footR2:'AI 原生 / 创立于 2024',
+    live:'实时', live2:'实时',
+  },
+  en:{
+    brandTitle:'Global Footprint', brandSub:'— Overseas Business Map',
+    searchPh:'Search markets / clients / cases  ·  e.g. Disney, Tokyo, Momcozy',
+    nav:{overview:'Overview',markets:'Markets',caps:'Capabilities'},
+    meta:{fy:'FY',q:'Q',series:'SERIES',utc:'UTC'},
+    lCases:{kicker:'TRENDING BOARD',title:'Trending Board',sub:'— signature work',
+      hint:'Click to switch · auto-rotate every 10s', heatLb:'Heat'},
+    centerKicker:'GLOBAL MARKET FOOTPRINT · 2024 — 2026', centerTitle:'World Map', centerSub:'— drag to locate market',
+    kpis:{markets:'MARKETS',camp:'CAMPAIGNS',awards:'AWARDS'},
+    tickerLead:'RENDER',
+    cc:{camp:'CAMPAIGNS',reach:'REACH',ooh:'OOH SITES',aw:'AWARDS',cli:'ACTIVE CLIENTS',pen:'MARKET PENETRATION'},
+    legend:{title:'MARKET TIER',strat:'Strategic',act:'Active',emerg:'Emerging'},
+    sigKicker:'CLIENT REVIEWS', sigTitle:'Reviews', sigSub:'— client voice',
+    honKicker:'HONORS', honTitle:'Awards · Press', honSub:'— honors',
+    cdd:{label:'FOCUS MARKET', mk:'markets', searchPh:'Filter country or region...',
+         tiers:{0:'STRATEGIC',1:'ACTIVE',2:'EMERGING'}},
+    rtabs:{reviews:'Reviews'},
+    pills:{AWARD:'AWARD',CLIENT:'CLIENT',PRESS:'PRESS',GROWTH:'GROWTH'},
+    origin:'ORIGIN', globalView:'GLOBAL VIEW', dragHint:'· drag globe to localize',
+    noSignals:(p)=>`No <b style="color:var(--bone)">${p}</b> signals for this market yet.`,
+    sigsCount:'signals',
+    footL:'v2.6 · MARKETRACK', footEd:'EDITION 0430', footR1:'CONTENT IS BUSINESS', footR2:'AI-NATIVE / SINCE 2024',
+    live:'LIVE', live2:'LIVE',
+  }
+};
+let LANG='zh';
+const t = () => I18N[LANG];
+
+// ============================================================
+// DATA
+// ============================================================
+// tier: 0=Strategic(4)  ·  1=Active(4 incl. CN home)  ·  2=Emerging(2)  ·  total 10
+const COUNTRIES = [
+  // Strategic — 4 markets
+  ['US','USA','美国','United States','North America',39.8,-98.6,'🇺🇸',0,18,42,6,7,62,'Momcozy × Home Alone','New York',['Momcozy','TCL','YOGO','Miniso']],
+  ['GB','GBR','英国','United Kingdom','Western Europe',55.4,-3.4,'🇬🇧',0,14,28,4,5,55,'F1 × Disney × Miniso','London',['F1','Disney','Miniso','TCL']],
+  ['DE','DEU','德国','Germany','Western Europe',51.2,10.4,'🇩🇪',0,11,21,3,4,48,'TCL Olympic — Global','Berlin',['TCL','F1','YOGO']],
+  ['JP','JPN','日本','Japan','East Asia',36.2,138.3,'🇯🇵',0,12,22,5,4,58,'AIGC × Cultural Heritage','Tokyo',['Sion','Miniso','TCL']],
+  // Active — 4 markets (CN home + key regional hubs)
+  ['CN','CHN','中国','China','East Asia',35.9,104.2,'🇨🇳',1,32,86,9,12,78,'敦煌飞天 · Apsaras Revival','Shanghai',['TCL','Miniso','Momcozy','YOGO','Sion','F1']],
+  ['KR','KOR','韩国','South Korea','East Asia',35.9,127.8,'🇰🇷',1,7,11,2,3,47,'YOGO — Human-Centric','Seoul',['YOGO','TCL']],
+  ['BR','BRA','巴西','Brazil','Latin America',-14.2,-51.9,'🇧🇷',1,7,14.2,2,2,24,'F1 São Paulo Co-Brand','São Paulo',['F1','TCL','Miniso']],
+  ['AE','ARE','阿联酋','UAE','Middle East',23.4,53.8,'🇦🇪',1,4,3.8,2,1,44,'Burj Plaza Megascreen','Dubai',['TCL','Miniso']],
+  // Emerging — 2 markets (NA secondary + SEA hub)
+  ['CA','CAN','加拿大','Canada','North America',56.1,-106.3,'🇨🇦',2,6,9.4,2,2,38,'TCL — Targeted Temperature','Toronto',['TCL','Momcozy']],
+  ['SG','SGP','新加坡','Singapore','SE Asia',1.35,103.8,'🇸🇬',2,5,4.2,2,2,61,'120m Megascreen','Singapore',['TCL','Miniso','YOGO']],
+];
+
+const CASES={
+  trending:[
+    {n:'TCL Winter Olympics · Brand Film',cli:'TCL × Olympic Global Partner',hot:9.8,region:'全球 / 欧洲',region_en:'Global / Europe',tags:[],m1:'Strategic Global',m2:'Cinema-Grade'},
+    {n:'Momcozy × BIG HUGS · Christmas',cli:'Momcozy USA · 14-Day Advent',hot:9.6,region:'北美 / 美国',region_en:'N.America / USA',tags:[],m1:'2D + 3D AI Real-time',m2:'Home Alone Universe'},
+    {n:'Miniso × F1 × Disney · Triple IP',cli:'MINISO Global',hot:9.5,region:'全球 / 欧洲',region_en:'Global / Europe',tags:[],m1:'10-day Disney approval',m2:'Full-Sequence AI'},
+    {n:'Miniso × Zootopia 2',cli:'MINISO × Disney',hot:9.3,region:'全球 / 大中华',region_en:'Global / Greater China',tags:[],m1:'Disney 1st-pass · 10 days',m2:'Telescopic IP transition'},
+    {n:'MAOGEPING · Dunhuang Apsaras',cli:'MAOGEPING / 毛戈平',hot:9.2,region:'大中华 / 全球',region_en:'Greater China / Global',tags:[],m1:'Cultural Heritage AI',m2:'Cracking → Restoration'},
+    {n:'Tales of Shan Hai · AIGC Short',cli:'Sion / FansAI Creative',hot:9.0,region:'大中华 / 全球',region_en:'Greater China / Global',tags:[],m1:'SIFF · BJIFF',m2:'AIGC Film Unit'},
+    {n:'Satine Vitality · TVC-Grade Brand Film',cli:'SATINE / 伊利金典',hot:8.9,region:'大中华',region_en:'Greater China',tags:[],m1:'Full-Sequence AI',m2:'Original AI Protagonist'},
+    {n:'Satine · Spring Festival Viral',cli:'SATINE / 伊利金典',hot:8.7,region:'大中华',region_en:'Greater China',tags:[],m1:'AI Score + Protagonist',m2:'New Year Campaign'},
+    {n:'YOGO Robot · Brand Going Global',cli:'YOGO Robot × Overseas',hot:8.5,region:'欧洲 / 韩国',region_en:'Europe / Korea',tags:[],m1:'Brand Repositioning',m2:'Human-Centric Tech'},
+    {n:'Royal Kiln · Night Market Light Show',cli:'Suzhou Museum · ICH Project',hot:8.4,region:'大中华 / 亚太',region_en:'Greater China / APAC',tags:[],m1:'AI Projection Mapping',m2:'1st AI ICH Light Show'},
+    {n:'HLA · Seasonal Launch Campaign',cli:'HLA 海澜之家',hot:8.2,region:'大中华',region_en:'Greater China',tags:[],m1:'Bespoke AI Models',m2:'Precision Logo Rendering'},
+    {n:'MAOGEPING · Ski Season',cli:'MAOGEPING / 毛戈平',hot:8.0,region:'大中华',region_en:'Greater China',tags:[],m1:'Narrative Comedy',m2:'Full-Sequence AI'},
+  ],
+  campaign:[
+    {n:'Targeted Temperature for Every Space',cli:'TCL × Global Olympic Partner',tags:[['TVC','k'],['Cinema-Grade','s'],['Olympic','t']],m1:'42M reach',m2:'30+ awards'},
+    {n:'Inaugural Launch — 100K Likes in 24h',cli:'FansAI Original',tags:[['Viral','k'],['24H','s']],m1:'100K+ likes',m2:'1.0M views'},
+    {n:'Single Project — 10M Organic Views',cli:'Brand Confidential',tags:[['Viral','k'],['6-Day','s']],m1:'10M+ views',m2:'Organic'},
+    {n:'Big Hugs — Home Alone Universe',cli:'Momcozy × North America',tags:[['IP','t'],['AI Full-Seq','k']],m1:'18M reach',m2:'Christmas \'25'},
+    {n:'New Year Viral — Apsaras Revival',cli:'Beauty Brand · CN/Global',tags:[['AI Score','k'],['Cultural','s']],m1:'Cracking → Restoration',m2:'AIGC TVC'},
+    {n:'Cinema-Grade Brand Film',cli:'TVC Confidential',tags:[['TVC','k'],['RTB','s']],m1:'Cinema 4K',m2:'Full AI'},
+  ],
+  ip:[
+    {n:'F1 × Disney × Miniso — Triple IP',cli:'Miniso Global',tags:[['IP','t'],['Disney','k'],['F1','s']],m1:'10-day approval',m2:'1st attempt'},
+    {n:'Momcozy × Home Alone — Big Hugs',cli:'Momcozy USA',tags:[['IP','t'],['Cinematic','k']],m1:'2D/3D Hybrid',m2:'Family / Protection'},
+    {n:'YOGO Robot — Human-Centric Tech',cli:'YOGO × Overseas',tags:[['IP','t'],['Robotics','s']],m1:'Brand reposition',m2:'EU + KR'},
+    {n:'Brand IP Vitalization System',cli:'FansAI Service',tags:[['IP','t'],['System','k']],m1:'Static → Dynamic',m2:'Full lifecycle'},
+  ],
+  culture:[
+    {n:'Tales of Shan Hai · AIGC Short Film',cli:'Sion / FansAI Creative',tags:[['AIGC','k'],['Cultural','s'],['Award','t']],m1:'SIFF AIGC Unit',m2:'BJIFF AIGC'},
+    {n:'ICH Night Market — 1st AI Light Show',cli:'Intangible Cultural Heritage',tags:[['Projection','k'],['Mapping','s']],m1:'AI Narrative',m2:'Night Lighting'},
+    {n:'120m Megascreen OOH Campaign',cli:'Confidential · APAC',tags:[['OOH','k'],['120m','s']],m1:'120-meter display',m2:'City takeover'},
+  ]
+};
+
+// localized signals per market
+// shape: {who, who_zh?, src, src_zh?, pill, cls, txt(=ui/en), txt_zh?, txt_ori?, lang}
+// `lang` = origin language code; if absent, defaults to 'en'.
+// `txt` is shown when LANG=='en'; `txt_zh` when LANG=='zh'; `txt_ori` when per-card Origin toggled
+const LOCAL = {
+  US:[
+    {who:'Clio Awards 2025',who_zh:'克利奥广告奖 2025',src:'New York · Gold · AI Innovation',src_zh:'纽约 · 金奖 · AI 创新分支',pill:'AWARD',cls:'',lang:'en',
+     txt:'"Big Hugs — Home Alone Universe" recognized for AI-native cinematic brand storytelling.',
+     txt_zh:'《温暖大抱抱 — 小鬼当家宇宙》凭借 AI 原生电影感品牌叙事获奖。',
+     num:'GOLD',numL:'CLIO · AI'},
+    {who:'One Show 2025',who_zh:'One Show 广告奖 2025',src:'Merit · Branded Entertainment',src_zh:'优秀奖 · 品牌娱乐内容',pill:'AWARD',cls:'',lang:'en',
+     txt:'Selected for craft in AI-assisted IP integration with Momcozy × North America audiences.',
+     txt_zh:'凭借 Momcozy × 北美市场的 AI 辅助 IP 整合工艺入选。'},
+    {who:'AdAge — Creativity',who_zh:'AdAge — 创意专栏',src:'Featured Editorial · Dec 2025',src_zh:'特别专题 · 2025 年 12 月',pill:'PRESS',cls:'in',lang:'en',
+     txt:'"How FansAI used the Home Alone universe to make product absence the story." — AdAge.',
+     txt_zh:'《FansAI 如何用"小鬼当家"宇宙，让"产品缺席"本身成为故事。》— AdAge'},
+    {who:'Momcozy USA',who_zh:'Momcozy 美国',src:'Christmas Campaign · North America',src_zh:'圣诞战役 · 北美市场',pill:'CLIENT',cls:'gr',lang:'en',
+     txt:'Transformed product absence into narrative strength — "Big Hugs" IP embedded into Home Alone\'s cinematic memory.',
+     txt_zh:'把"产品缺席"转化为叙事张力 —— "Big Hugs" IP 嵌入《小鬼当家》的电影记忆。',
+     num:'18M',numL:'US REACH'},
+  ],
+  CN:[
+    {who:'上海国际电影节',who_zh:'上海国际电影节',src:'第 27 届 SIFF · AIGC 电影单元 2025',src_zh:'第 27 届 SIFF · AIGC 电影单元 2025',pill:'AWARD',cls:'',lang:'zh',
+     txt:'"Tales of Shan Hai" featured in SIFF AIGC Film Unit — led by FansAI Creative Partner Sion.',
+     txt_zh:'《山海奇境》入选上海国际电影节 AIGC 电影单元 —— 由 FansAI 创意合伙人 Sion 领衔创作。',
+     txt_ori:'《山海奇境》入选第 27 届上海国际电影节 AIGC 电影单元 —— 由 FansAI 创意合伙人 Sion 领衔。',
+     num:'SIFF',numL:'AIGC 单元'},
+    {who:'北京国际电影节',who_zh:'北京国际电影节',src:'第 15 届 BJIFF · AIGC 电影单元 2025',src_zh:'第 15 届 BJIFF · AIGC 电影单元 2025',pill:'AWARD',cls:'',lang:'zh',
+     txt:'Selected for BJIFF AIGC Film Unit alongside Dreamina AI Screening Room exhibition.',
+     txt_zh:'入选北京国际电影节 AIGC 电影单元，同期参与即梦 AI 放映厅线下展。',
+     txt_ori:'入选第 15 届北京国际电影节 AIGC 电影单元，与即梦 AI 放映厅同期联展。'},
+    {who:'金投赏国际创意节',who_zh:'金投赏国际创意节',src:'ROI Festival · 上海 · 银奖 · AI 应用',src_zh:'ROI Festival · 上海 · 银奖 · AI 应用',pill:'AWARD',cls:'',lang:'zh',
+     txt:'TCL "Targeted Temperature" recognized at China\'s ROI Festival for AI-driven brand effectiveness.',
+     txt_zh:'TCL《每一寸空间的定向温度》获金投赏银奖 —— 表彰 AI 驱动的品牌有效性。',
+     txt_ori:'TCL《每一寸空间的定向温度》荣获金投赏国际创意节"AI 应用"银奖。',
+     num:'金投赏',numL:'SILVER · AI'},
+    {who:'敦煌研究院 × 美妆品牌',who_zh:'敦煌研究院 × 美妆品牌',src:'新年战役 · 飞天复原 · 文化叙事',src_zh:'新年战役 · 飞天复原 · 文化叙事',pill:'CLIENT',cls:'gr',lang:'zh',
+     txt:'Apsaras Revival — cracking metaphor + AI-restored beauty as a Cannes-eligible cultural brand film.',
+     txt_zh:'《敦煌飞天复原》—— 以"剥落"为隐喻，AI 复原"美的回归"，作为可冲击戛纳的文化品牌片。',
+     txt_ori:'《敦煌飞天复原》—— 壁画剥落隐喻"美随时间侵蚀"，AI 复原飞天象征"美的回归"。'},
+    {who:'36氪 / Campaign China',who_zh:'36氪 / Campaign China',src:'封面专题 · "AI 原生内容公司" · 2025',src_zh:'封面专题 · "AI 原生内容公司" · 2025',pill:'PRESS',cls:'in',lang:'zh',
+     txt:'Cover feature on FansAI as the leading AI-native content science company in China.',
+     txt_zh:'封面专题报道：FansAI 作为中国领先的 AI 原生内容科学公司。',
+     txt_ori:'《36氪》《Campaign China》联合封面专题：「AI 原生内容公司」如何重塑品牌叙事。'},
+  ],
+  GB:[
+    {who:'D&AD Awards 2025',src:'London · Wood Pencil · AI Craft',pill:'AWARD',cls:'',lang:'en',
+     txt:'F1 × Disney × Miniso triple-IP convergence recognized in the AI craft category.',
+     txt_zh:'F1 × 迪士尼 × 名创优品 三 IP 融合，于 D&AD AI 工艺类别获奖。',
+     num:'D&AD',numL:'WOOD PENCIL'},
+    {who:'British Arrows 2025',src:'Shortlist · Brand Film',pill:'AWARD',cls:'',lang:'en',
+     txt:'Cinema-Grade Brand Film shortlisted alongside major UK agency productions.',
+     txt_zh:'《电影级品牌片》与多家英国头部代理作品同列入围。'},
+    {who:'Campaign UK',src:'Feature · "The AI-native agency" · 2025',pill:'PRESS',cls:'in',lang:'en',
+     txt:'Profiled as one of the new AI-native content houses reshaping cross-IP brand work.',
+     txt_zh:'《Campaign》英国版专访：重塑跨 IP 品牌工作的新一代 AI 原生内容公司之一。'},
+    {who:'Disney EMEA Licensing',src:'IP Approval · First Attempt · 10 Days',pill:'CLIENT',cls:'gr',lang:'en',
+     txt:'Telescopic visual transition between IP universes — fastest first-attempt approval cycle of the cohort.',
+     txt_zh:'IP 宇宙间的"望远镜式"视觉转场 —— 同期项目中首过审周期最短。',
+     num:'10d',numL:'APPROVAL CYCLE'},
+  ],
+  DE:[
+    {who:'ADC Germany 2025',src:'Berlin · Silver Nail · AI Craft',pill:'AWARD',cls:'',lang:'de',
+     txt:'TCL "Targeted Temperature for Every Space" recognized for unified narrative across markets.',
+     txt_zh:'TCL《每一寸空间的定向温度》凭借跨市场统一叙事获得 ADC 银奖。',
+     txt_ori:'TCL „Gezielte Temperatur für jeden Raum" für die einheitliche Erzählung über alle Märkte hinweg ausgezeichnet.',
+     num:'SILBER',numL:'ADC NAGEL'},
+    {who:'German Design Award 2026',src:'Winner · Excellent Communications',pill:'AWARD',cls:'',lang:'de',
+     txt:'Recognized for the integrated visual system across TCL\'s Olympic campaign.',
+     txt_zh:'凭借 TCL 奥运战役的整合视觉体系获奖。',
+     txt_ori:'Ausgezeichnet für das integrierte visuelle System der TCL-Olympia-Kampagne.'},
+    {who:'W&V Magazin',src:'Industry Feature · 2025',pill:'PRESS',cls:'in',lang:'de',
+     txt:'"FansAI brings AI-native content to Europe." — W&V.',
+     txt_zh:'"FansAI 将 AI 原生内容带到欧洲。" — W&V',
+     txt_ori:'„FansAI bringt AI-native Content nach Europa." — W&V'},
+    {who:'TCL — Global Olympic Partner',src:'Synchronized Global Brand Message',pill:'CLIENT',cls:'gr',lang:'en',
+     txt:'Technological Leadership · Humanistic Warmth · "Targeted Temperature" as primary narrative axis.',
+     txt_zh:'技术领导力 · 人文温度 ·《每一寸空间的定向温度》作为主叙事轴。',
+     num:'21M',numL:'DE REACH'},
+  ],
+  IT:[
+    {who:'ADCI Awards 2025',src:'Milano · Bronze · Film Craft',pill:'AWARD',cls:'',txt:'F1 — Speed × Suspense convergence selected at Art Directors Club Italiano.',num:'BRONZE',numL:'ADCI'},
+    {who:'NC Digital Awards',src:'Finalist · Brand Content',pill:'AWARD',cls:'',txt:'Triple-IP F1 × Disney × Miniso shortlisted at NC Digital.'},
+    {who:'F1 Milano GP',src:'Co-Brand · 2025',pill:'CLIENT',cls:'gr',txt:'Speed, sophistication, suspense — three IPs converging on a singular emotional crescendo.'},
+  ],
+  ES:[
+    {who:'El Sol Festival 2025',src:'Bilbao · Bronze Sun · Branded Content',pill:'AWARD',cls:'',txt:'Seasonal apparel campaign recognized at the Iberoamerican advertising festival.',num:'SOL',numL:'BRONZE'},
+    {who:'Premios Eficacia',src:'Shortlist · International',pill:'AWARD',cls:'',txt:'Cross-market AI campaign shortlisted for effectiveness in Spanish-speaking markets.'},
+    {who:'Miniso Iberia',src:'Seasonal Launch · 2025',pill:'CLIENT',cls:'gr',txt:'Scenic tension amplifies the character of the apparel — AI-generated environments.'},
+  ],
+  NL:[
+    {who:'ADCN Lampen 2025',src:'Amsterdam · Bronze Lamp · Digital Craft',pill:'AWARD',cls:'',txt:'"Tales of Shan Hai" AIGC short film selected for international AI craft at ADCN.',num:'LAMP',numL:'ADCN'},
+    {who:'Eurobest 2025',src:'Shortlist · Film Craft',pill:'AWARD',cls:'',txt:'Recognized alongside leading European agency productions.'},
+    {who:'Adformatie',src:'Feature · AIGC in commercial film',pill:'PRESS',cls:'in',txt:'"How a Chinese AI house is competing on craft, not cost."'},
+  ],
+  SE:[
+    {who:'Guldägget 2025',src:'Stockholm · Shortlist · Film',pill:'AWARD',cls:'',txt:'TCL Nordic Launch shortlisted at Sweden\'s most established creative award.',num:'GULD',numL:'SHORTLIST'},
+    {who:'Epica Awards',src:'Bronze · Branded Content',pill:'AWARD',cls:'',txt:'Recognized at the only awards judged exclusively by journalists.'},
+  ],
+  NO:[
+    {who:'Gulltaggen 2026',src:'Oslo · Nominated · Digital Craft',pill:'AWARD',cls:'',txt:'Cultural Narrative Pilot nominated for digital craft at Norway\'s digital marketing award.'},
+  ],
+  CH:[
+    {who:'ADC Switzerland 2025',src:'Zürich · Bronze · Craft',pill:'AWARD',cls:'',txt:'Luxury IP co-branded short film recognized at Art Directors Club Switzerland.',num:'ADC CH',numL:'BRONZE'},
+  ],
+  IE:[
+    {who:'ICAD Awards 2025',src:'Dublin · Highly Commended',pill:'AWARD',cls:'',txt:'Studio spin-off recognized at Institute of Creative Advertising & Design.'},
+  ],
+  PL:[
+    {who:'KTR Awards 2025',src:'Warsaw · Finalist',pill:'AWARD',cls:'',txt:'Viral distribution pilot finalist at Klub Twórców Reklamy.'},
+  ],
+  PT:[
+    {who:'Clube Criativos 2025',src:'Lisbon · Shortlist',pill:'AWARD',cls:'',txt:'IP Vitalization shortlisted at Clube de Criativos de Portugal.'},
+  ],
+  CA:[
+    {who:'Bessies Awards 2025',src:'Toronto · Gold · Craft',pill:'AWARD',cls:'',txt:'TCL Canada launch awarded gold at the Canadian commercial production awards.',num:'BESSIE',numL:'GOLD'},
+    {who:'Marketing Awards',src:'Shortlist · Best Use of AI',pill:'AWARD',cls:'',txt:'Recognized in Canada\'s Marketing Awards "Best Use of AI" category.'},
+    {who:'Strategy Magazine',src:'Feature · AI commercials · 2025',pill:'PRESS',cls:'in',txt:'"FansAI brings global-scale AI craft to Canadian brand teams."'},
+  ],
+  MX:[
+    {who:'El Ojo de Iberoamérica',src:'CDMX · Bronze · Film Craft',pill:'AWARD',cls:'',txt:'Momcozy LATAM launch recognized at the leading Iberoamerican creativity festival.',num:'OJO',numL:'BRONZE'},
+    {who:'Círculo Creativo',src:'Finalist · Branded Content',pill:'AWARD',cls:'',txt:'Recognized at Mexico\'s national creative circle.'},
+  ],
+  BR:[
+    {who:'Wave Festival 2025',src:'Rio · Silver · Film',pill:'AWARD',cls:'',txt:'F1 São Paulo GP co-brand recognized at Brazil\'s top regional creative festival.',num:'WAVE',numL:'SILVER'},
+    {who:'Cannes Lions 2025',src:'Shortlist · Entertainment',pill:'AWARD',cls:'',txt:'São Paulo work shortlisted at Cannes in the Entertainment Lions.'},
+    {who:'Meio & Mensagem',src:'Coverage · F1 São Paulo · 2025',pill:'PRESS',cls:'in',txt:'"A produção AI por trás da campanha do GP São Paulo."'},
+  ],
+  AR:[
+    {who:'FIAP Awards 2025',src:'Buenos Aires · Shortlist',pill:'AWARD',cls:'',txt:'Viral short shortlisted at the Festival Iberoamericano de la Publicidad.'},
+  ],
+  AU:[
+    {who:'AWARD Awards 2025',src:'Sydney · Bronze · Branded Content',pill:'AWARD',cls:'',txt:'Cinema-Grade TVC recognized at Australia\'s top creative award.',num:'AWARD',numL:'BRONZE'},
+    {who:'Spikes Asia 2025',src:'Shortlist · Film Craft',pill:'AWARD',cls:'',txt:'Sydney production shortlisted alongside APAC agency leaders.'},
+    {who:'Mumbrella',src:'Feature · AI in commercial film · 2025',pill:'PRESS',cls:'in',txt:'"The AI craft house that just landed in Sydney."'},
+  ],
+  JP:[
+    {who:'ACC Tokyo Creativity 2025',src:'Tokyo · Bronze · Film Craft',pill:'AWARD',cls:'',lang:'ja',
+     txt:'"AIGC × Cultural Heritage" recognized at the All Japan Radio & Television Commercial Confederation awards.',
+     txt_zh:'《AIGC × 文化遗产》系列在全日本广播电视广告联盟 ACC 奖获铜奖。',
+     txt_ori:'「AIGC × 文化遺産」シリーズが全日本ラジオ・テレビCM連盟 ACC 賞でブロンズを受賞。',
+     num:'ACC',numL:'BRONZE'},
+    {who:'Tokyo TDC 2026',src:'Selected · Visual Communication',pill:'AWARD',cls:'',lang:'ja',
+     txt:'Cultural heritage AI series selected at Tokyo Type Directors Club.',
+     txt_zh:'文化遗产 AI 系列入选东京字体指导俱乐部年鉴。',
+     txt_ori:'文化遺産 AI シリーズが東京タイプディレクターズクラブ年鑑に選定。'},
+    {who:'AdverTimes 宣伝会議',src:'Feature · AI 広告制作 · 2025',pill:'PRESS',cls:'in',lang:'ja',
+     txt:'"An AI-native content house from China enters the Japanese market."',
+     txt_zh:'"来自中国的 AI 原生内容公司，正式进入日本市场。"',
+     txt_ori:'「中国発のAIネイティブ・コンテンツ・ハウスが日本市場へ。」'},
+    {who:'Shibuya OOH Takeover',src:'Cross Tokyo · 2025 Q4',pill:'CLIENT',cls:'gr',lang:'en',
+     txt:'5 megascreen placements coordinated for synchronized cultural heritage narrative.',
+     txt_zh:'5 块巨幕协同投放，统一呈现"文化遗产"叙事。'},
+  ],
+  KR:[
+    {who:'Korea AD Awards 2025',src:'Seoul · Silver · Branded Content',pill:'AWARD',cls:'',lang:'ko',
+     txt:'YOGO Robot "Human-Centric Tech" repositioning recognized at Korea\'s national ad awards.',
+     txt_zh:'YOGO ROBOT"以人为本科技"重新定位，于韩国全国广告奖获银奖。',
+     txt_ori:'YOGO 로봇 "인간 중심 기술" 리포지셔닝, 한국광고대상에서 은상 수상.',
+     num:'KAA',numL:'SILVER'},
+    {who:'Asia-Pacific Advertising Festival',src:'AdFest · Bronze · Film Craft',pill:'AWARD',cls:'',lang:'en',
+     txt:'YOGO campaign awarded at AdFest in the film craft category.',
+     txt_zh:'YOGO 战役在 AdFest 影像工艺类获奖。'},
+    {who:'The PR Times Korea',src:'Feature · 2025',pill:'PRESS',cls:'in',lang:'ko',
+     txt:'"An AI-native content house enters the Korean market."',
+     txt_zh:'"AI 原生内容公司正式进入韩国市场。"',
+     txt_ori:'"AI 네이티브 콘텐츠 하우스가 한국 시장에 진출하다."'},
+  ],
+  BR:[
+    {who:'Wave Festival 2025',src:'Rio · Silver · Film',pill:'AWARD',cls:'',lang:'pt',
+     txt:'F1 São Paulo GP co-brand recognized at Brazil\'s top regional creative festival.',
+     txt_zh:'F1 圣保罗站联名，在巴西头部区域创意节获银奖。',
+     txt_ori:'Co-marca F1 GP São Paulo reconhecida no maior festival criativo regional do Brasil.',
+     num:'WAVE',numL:'SILVER'},
+    {who:'Cannes Lions 2025',src:'Shortlist · Entertainment',pill:'AWARD',cls:'',lang:'en',
+     txt:'São Paulo work shortlisted at Cannes in the Entertainment Lions.',
+     txt_zh:'圣保罗作品入围戛纳娱乐狮短名单。'},
+    {who:'Meio & Mensagem',src:'Coverage · F1 São Paulo · 2025',pill:'PRESS',cls:'in',lang:'pt',
+     txt:'"The AI production behind the São Paulo GP campaign."',
+     txt_zh:'"圣保罗大奖赛战役背后的 AI 制作。"',
+     txt_ori:'« A produção AI por trás da campanha do GP São Paulo. »'},
+  ],
+  AE:[
+    {who:'Dubai Lynx 2026',src:'Dubai · Silver · Outdoor',pill:'AWARD',cls:'',lang:'en',
+     txt:'Burj Plaza megascreen campaign awarded silver at the MENA region\'s top creative festival.',
+     txt_zh:'Burj Plaza 巨幕战役，于中东北非区域顶级创意节获银奖。',
+     num:'LYNX',numL:'SILVER'},
+    {who:'MENA Effie Awards',src:'Finalist · Brand Experience',pill:'AWARD',cls:'',lang:'en',
+     txt:'Recognized for effectiveness of the integrated OOH + digital narrative.',
+     txt_zh:'凭借 OOH + 数字叙事的整合有效性入围终选。'},
+    {who:'Campaign Middle East',src:'Cover · "AI-native craft arrives in MENA"',pill:'PRESS',cls:'in',lang:'en',
+     txt:'Featured as one of the agencies redefining commercial production in the region.',
+     txt_zh:'被列为正在重新定义区域商业制作的代理公司之一。'},
+  ],
+  SG:[
+    {who:'Spikes Asia 2025',src:'Singapore · Silver · Outdoor Lions',pill:'AWARD',cls:'',lang:'en',
+     txt:'120m megascreen takeover awarded silver at Spikes Asia outdoor category.',
+     txt_zh:'120 米巨幕霸屏战役，于 Spikes Asia 户外类获银奖。',
+     num:'SPIKES',numL:'SILVER'},
+    {who:'Marketing Interactive',src:'Feature · Mega-OOH · 2025',pill:'PRESS',cls:'in',lang:'en',
+     txt:'"FansAI takes over Marina Bay with synchronized AI narrative."',
+     txt_zh:'"FansAI 以 AI 同步叙事霸屏滨海湾。"'},
+  ],
+};
+
+// per-market client / partner reviews (testimonials) — 8 per market for rotation
+const REVIEWS = {
+  US:[
+    {who:'Jessica L.',role:'Brand Marketing Lead',org:'Momcozy USA',stars:5,lang:'en',txt:'"FansAI redefined what AI commercial work can deliver. The Home Alone integration carried the emotional depth our brief needed — no traditional agency could match this turnaround."',txt_zh:'"FansAI 重新定义了 AI 商业创作能达到的水准。Home Alone 整合的情感深度精准命中 brief —— 没有任何传统代理能在同样时间内做到这一点。"'},
+    {who:'Marcus T.',role:'Creative Director',org:'Independent · NYC',stars:5,lang:'en',txt:'"The craft level here is genuinely cinema-grade. I stopped seeing it as AI commercial work — I started judging it as filmmaking."',txt_zh:'"工艺水准真正达到了电影级。我已经不再把它当作 AI 商业内容看 —— 我是在用电影的标准评价它。"'},
+    {who:'Rebecca H.',role:'VP Brand',org:'Momcozy Holdings',stars:5,lang:'en',txt:'"For Q4, FansAI was the single most important creative decision we made. Christmas results validated the whole bet."',txt_zh:'"四季度里，与 FansAI 合作是我们最关键的一次创意决策。圣诞档的数据印证了所有押注。"'},
+    {who:'Daniel P.',role:'Senior Producer',org:'Cinema Studio · LA',stars:5,lang:'en',txt:'"They cut our shoot days in half without compromising frame quality. That math used to be impossible."',txt_zh:'"在不牺牲画面质量的前提下把拍摄周期砍掉一半 —— 过去这道算式根本算不出来。"'},
+    {who:'Emily R.',role:'Strategy Director',org:'Brand Consulting · Chicago',stars:5,lang:'en',txt:'"What stood out wasn\'t the AI — it was the strategic IP reading. They saw cultural angles US agencies missed."',txt_zh:'"真正出彩的不是 AI —— 是他们对 IP 的战略性解读。看到了美国本土代理都漏掉的文化切角。"'},
+    {who:'Kevin W.',role:'Head of Content',org:'Toy Brand · North America',stars:5,lang:'en',txt:'"The Home Alone universe lift was wild. Our retail check-ins were up 38% in the three weeks following launch."',txt_zh:'"Home Alone 宇宙的拉动力极强。投放后三周内零售到店数据上涨了 38%。"'},
+    {who:'Olivia M.',role:'Brand Director',org:'CPG · USA',stars:5,lang:'en',txt:'"They write briefs back to you better than you wrote them. That\'s the real signal."',txt_zh:'"他们能把你的 brief 重写得比你原稿更好 —— 这才是真正的信号。"'},
+    {who:'Ryan J.',role:'Marketing Lead',org:'Sports Brand · NA',stars:5,lang:'en',txt:'"Working with FansAI feels less like hiring an agency and more like adding a senior film studio to your team."',txt_zh:'"和 FansAI 合作的感觉，不像在用代理 —— 更像是给团队接入了一家资深电影工作室。"'},
+  ],
+  GB:[
+    {who:'James C.',role:'Group Account Director',org:'Independent Studio · London',stars:5,lang:'en',txt:'"Watching them get Disney approved first-attempt in 10 days reset my expectations of what an AI-native house can actually pull off."',txt_zh:'"亲眼看到他们 10 天内首次提案就拿下迪士尼授权 —— 我对 AI 原生公司能做到的事，重置了认知。"'},
+    {who:'Eleanor B.',role:'Brand Partner',org:'F1 EMEA',stars:5,lang:'en',txt:'"They held the brand thread across F1, Disney and Miniso simultaneously — that requires real editorial judgement, not just tools."',txt_zh:'"他们能同时握住 F1、迪士尼、名创三条品牌主线 —— 这需要真正的编辑判断，不是工具能给的。"'},
+    {who:'Oliver D.',role:'Creative Strategist',org:'D&AD Jury Network',stars:5,lang:'en',txt:'"I\'ve sat through hundreds of AI reels at festivals. This is the first house I\'d defend on craft alone."',txt_zh:'"在各类节展上看过几百段 AI 卷 —— 这是我第一家愿意单从工艺角度为之背书的公司。"'},
+    {who:'Sophie A.',role:'Head of Production',org:'Post House · Soho',stars:5,lang:'en',txt:'"Their output drops straight into our finishing pipeline. No rework, no \'AI look\' fixes. That\'s the bar."',txt_zh:'"他们的成片可以直接进我们的成品流水线，不需要返工，也不需要修"AI 感"。这才是基准。"'},
+    {who:'Henry K.',role:'Brand Director',org:'TCL UK',stars:5,lang:'en',txt:'"They turned a brief I thought was impossible into a film I now show every new agency partner."',txt_zh:'"他们把一个我本以为不可能的 brief 做成了一支片子，现在它是我给所有新代理看的样本。"'},
+    {who:'Lara N.',role:'Marketing Manager',org:'Miniso UK',stars:5,lang:'en',txt:'"Three IPs, one tone of voice, ten days. The execution density is the real edge."',txt_zh:'"三个 IP、统一调性、十天交付。执行密度才是他们真正的护城河。"'},
+    {who:'Tom R.',role:'Senior Writer',org:'Campaign UK',stars:5,lang:'en',txt:'"Most AI-native shops sell speed. FansAI sells judgement. That\'s a different category."',txt_zh:'"多数 AI 公司在卖速度；FansAI 在卖判断力 —— 是完全不同的物种。"'},
+    {who:'Priya S.',role:'IP Licensing',org:'Studio · London',stars:5,lang:'en',txt:'"Disney rarely first-passes anyone. They did. End of statement."',txt_zh:'"迪士尼几乎不会首过任何团队。他们首过了。无需更多评论。"'},
+  ],
+  CN:[
+    {who:'王 总',role:'品牌副总裁',org:'TCL 全球品牌',stars:5,lang:'zh',txt:'"《每一寸空间的定向温度》能在跨市场保持完全统一的叙事感，是过去十年传统代理没有给我们的能力。"',txt_zh:'"《每一寸空间的定向温度》能在跨市场保持完全统一的叙事感，是过去十年传统代理没有给我们的能力。"'},
+    {who:'Lily Z.',role:'Global IP Lead',org:'名创优品',stars:5,lang:'zh',txt:'"F1 × Disney × 名创三 IP 融合，迪士尼 10 天首过 —— 这种执行密度在国内基本没见过。"',txt_zh:'"F1 × Disney × 名创三 IP 融合，迪士尼 10 天首过 —— 这种执行密度在国内基本没见过。"'},
+    {who:'敦煌研究院 · 合作方',role:'文化项目顾问',org:'毛戈平 · 大中华区',stars:5,lang:'zh',txt:'"飞天复原把"修复"做成叙事核心 —— FansAI 让文化资产真正回到消费语境里。"',txt_zh:'"飞天复原把"修复"做成叙事核心 —— FansAI 让文化资产真正回到消费语境里。"'},
+    {who:'李 总',role:'品牌中心总监',org:'伊利金典 SATINE',stars:5,lang:'zh',txt:'"春节战役的 AI 配乐与角色，从 brief 到上线只用了 18 天 —— 同时是当季最被讨论的一支。"',txt_zh:'"春节战役的 AI 配乐与角色，从 brief 到上线只用了 18 天 —— 同时是当季最被讨论的一支。"'},
+    {who:'陈 总',role:'品牌负责人',org:'海澜之家 HLA',stars:5,lang:'zh',txt:'"季节性产品快节奏上新，FansAI 是少数能跟得上我们出货节奏的创意伙伴。"',txt_zh:'"季节性产品快节奏上新，FansAI 是少数能跟得上我们出货节奏的创意伙伴。"'},
+    {who:'苏州博物馆 · 项目组',role:'非遗活化负责人',org:'御窑金砖光影夜市',stars:5,lang:'zh',txt:'"我们做的是国内首个 AI 驱动的非遗叙事光影 —— 没有 FansAI 的创作判断，做不出这个深度。"',txt_zh:'"我们做的是国内首个 AI 驱动的非遗叙事光影 —— 没有 FansAI 的创作判断，做不出这个深度。"'},
+    {who:'36氪 · 编辑部',role:'封面专题主笔',org:'Campaign China · 联合报道',stars:5,lang:'zh',txt:'"FansAI 代表的不是工具替代，而是创作链路的整体重写。这是我们 2025 选 cover 的理由。"',txt_zh:'"FansAI 代表的不是工具替代，而是创作链路的整体重写。这是我们 2025 选 cover 的理由。"'},
+    {who:'张 总',role:'创意合伙人',org:'独立工作室 · 上海',stars:5,lang:'zh',txt:'"以前我们和 AI 团队合作要补创意，和 FansAI 合作我们补的是产能。这才是正确的合作关系。"',txt_zh:'"以前和 AI 团队合作要补创意；和 FansAI 合作我们补的是产能 —— 这才是正确的合作关系。"'},
+  ],
+  DE:[
+    {who:'Klaus M.',role:'Brand Communications',org:'TCL EMEA',stars:5,lang:'de',txt:'"What FansAI delivered for the Olympic campaign was at the level of European Tier-1 agencies — at half the lead time."',txt_zh:'"FansAI 为奥运战役交付的内容达到欧洲一线代理水准 —— 周期只有他们的一半。"',txt_ori:'„Was FansAI für die Olympia-Kampagne lieferte, war auf dem Niveau europäischer Tier-1-Agenturen — bei halber Vorlaufzeit."'},
+    {who:'Annika S.',role:'Head of Brand Film',org:'Production · Berlin',stars:5,lang:'de',txt:'"Their work could have come from a Munich agency — and that\'s the highest compliment I can give."',txt_zh:'"他们的作品看着就像出自慕尼黑代理 —— 这是我能给的最高评价。"',txt_ori:'„Ihre Arbeit hätte aus einer Münchner Agentur stammen können — und das ist das höchste Kompliment, das ich machen kann."'},
+    {who:'Lukas H.',role:'Creative Lead',org:'ADC Germany Jury',stars:5,lang:'de',txt:'"They earned the Silver Nail on craft. There was no \'AI bonus\' applied — none was needed."',txt_zh:'"他们的银钉是凭工艺拿到的。没有给"AI 加分"—— 也根本不需要。"',txt_ori:'„Sie haben den Silbernen Nagel durch Handwerk verdient. Keinen \'KI-Bonus\' angewandt — keiner nötig."'},
+    {who:'Petra W.',role:'Editor',org:'W&V Magazin',stars:5,lang:'de',txt:'"For the German market, FansAI cracked the cultural code in a way that surprised everyone."',txt_zh:'"在德国市场上，FansAI 破解文化密码的方式让所有人惊讶。"',txt_ori:'„Für den deutschen Markt hat FansAI den kulturellen Code auf eine Art geknackt, die alle überrascht hat."'},
+    {who:'Stefan R.',role:'Global Brand',org:'Sportswear · DACH',stars:5,lang:'de',txt:'"They\'re the rare external partner I\'d let touch our brand book without a fight."',txt_zh:'"是少数我愿意让对方动我们品牌手册的外部合作方。"',txt_ori:'„Sie sind der seltene externe Partner, dem ich unser Markenbuch ohne Widerstand anvertrauen würde."'},
+    {who:'Maximilian B.',role:'CCO',org:'Agency Network · Hamburg',stars:5,lang:'en',txt:'"FansAI moved the floor on what \'AI-native\' means in commercial work. The benchmark is now them, not the tool."',txt_zh:'"FansAI 把"AI 原生"在商业作品里的下限抬高了。基准变成他们，不再是工具。"'},
+    {who:'Helena F.',role:'Brand Director',org:'Auto OEM · DE',stars:5,lang:'en',txt:'"Premium German automotive expects austerity. They got it right — restraint, not noise."',txt_zh:'"德国豪华车要的是克制。他们抓到了 —— 是克制，不是声量。"'},
+    {who:'Jonas T.',role:'Strategy Director',org:'Independent · Frankfurt',stars:5,lang:'en',txt:'"What I expected from a Tokyo studio, delivered from Shanghai. The geography is no longer the moat."',txt_zh:'"我以为只能从东京拿到的水准，从上海交付出来了 —— 地理已经不再是护城河。"'},
+  ],
+  JP:[
+    {who:'佐藤 健',role:'Creative Producer',org:'AdverTimes 寄稿',stars:5,lang:'ja',txt:'"The cultural heritage work could have come from a Tokyo studio. The level of restraint and emotional precision is rare from a non-Japanese team."',txt_zh:'"文化遗产系列的水准，完全像出自东京工作室。这种克制和情绪精度，在非日本团队里极少见到。"',txt_ori:'「文化遺産シリーズの完成度は、東京のスタジオから出てきても違和感がない。この抑制と情緒の精度は、非日系チームでは稀だ。」'},
+    {who:'山田 美咲',role:'Brand Manager',org:'Beauty Brand · Tokyo',stars:5,lang:'ja',txt:'"They handle Japanese aesthetics with respect, not as decoration. That distinction matters."',txt_zh:'"他们对待日式美学是尊重，而不是装饰。这个分别非常重要。"',txt_ori:'「日本の美意識を装飾としてではなく敬意をもって扱う。その違いは大きい。」'},
+    {who:'高橋 隆',role:'Creative Director',org:'TCL Japan',stars:5,lang:'ja',txt:'"The film passed legal, brand, and aesthetic review in a single round — the first time in years."',txt_zh:'"这支片子在法务、品牌、审美三关一次过审 —— 多年来第一次。"',txt_ori:'「法務、ブランド、美術の三者レビューを一回で通過 —— 何年ぶりかの出来事だ。」'},
+    {who:'鈴木 翔太',role:'Head of Digital',org:'Retail Group · Tokyo',stars:5,lang:'ja',txt:'"For the Shibuya OOH takeover, FansAI hit a level of coherence that Japanese teams alone rarely deliver."',txt_zh:'"涩谷巨幕霸屏的统一性，连日本本土团队也很少能达到这个水平。"',txt_ori:'「渋谷OOHジャックの統一感は、日本のチームだけでも到達しにくいレベルだった。」'},
+    {who:'森田 ゆき',role:'IP Licensing',org:'Anime Studio · Tokyo',stars:5,lang:'ja',txt:'"Their respect for IP origin stories is the reason we approved the partnership."',txt_zh:'"他们对 IP 原作的尊重，是我们批准合作的唯一理由。"',txt_ori:'「IP 原作への敬意こそが、私たちが提携を承認した理由だ。」'},
+    {who:'Hiroshi K.',role:'Senior Editor',org:'宣伝会議 / AdverTimes',stars:5,lang:'en',txt:'"FansAI is the first non-Japanese AI house I\'d feature in a craft issue."',txt_zh:'"FansAI 是我第一家愿意放进"工艺特辑"的非日系 AI 公司。"'},
+    {who:'吉田 真一',role:'Co-Founder',org:'Production House · Kyoto',stars:5,lang:'en',txt:'"They didn\'t copy our aesthetic. They understood it. That\'s the difference."',txt_zh:'"他们没有抄我们的美学；他们理解了它 —— 这就是差别。"'},
+    {who:'Reiko H.',role:'Industry Analyst',org:'Tokyo Media Forum',stars:5,lang:'en',txt:'"The first Chinese studio I see making work that the Japanese market accepts as its own."',txt_zh:'"我看到的第一家，能让日本市场把作品当作"自己人"出品的中国工作室。"'},
+  ],
+  KR:[
+    {who:'Jiwoo P.',role:'Brand Director',org:'YOGO Robot Korea',stars:5,lang:'ko',txt:'"They repositioned us from \'robotics company\' to \'human-centric technology brand\' — that single shift unlocked an entirely new audience."',txt_zh:'"他们把我们从"机器人公司"重新定位为"以人为本的科技品牌" —— 这一个转变打开了一整个新人群。"',txt_ori:'"우리를 \'로봇 회사\'에서 \'인간 중심 기술 브랜드\'로 리포지셔닝했다 — 이 하나의 전환이 완전히 새로운 오디언스를 열어줬다."'},
+    {who:'Minji L.',role:'Marketing Lead',org:'Tech Brand · Seoul',stars:5,lang:'ko',txt:'"Korean audiences are unforgiving of stilted AI work. Theirs flows. That\'s the only test that matters."',txt_zh:'"韩国观众对生硬的 AI 内容很不留情面。他们的作品很顺。这是唯一重要的检验。"',txt_ori:'"한국 시청자는 부자연스러운 AI 콘텐츠에 가차없다. 이들의 작품은 자연스럽게 흐른다 — 그게 유일한 기준이다."'},
+    {who:'Hyunwoo K.',role:'CEO',org:'Beauty Tech Startup',stars:5,lang:'ko',txt:'"They captured the K-aesthetic without parodying it. Rare from any non-Korean team."',txt_zh:'"他们抓到了 K-aesthetic，没有走入戏仿。任何非韩团队里都极少见。"',txt_ori:'"K-미학을 패러디 없이 포착했다. 비한국 팀에서는 매우 드물다."'},
+    {who:'Soyeon J.',role:'Production Manager',org:'Studio · Seoul',stars:5,lang:'ko',txt:'"On set, they think like a Korean production team. That\'s the highest praise I can give."',txt_zh:'"在片场上，他们像一支韩国制作团队那样思考 —— 这是我能给的最高评价。"',txt_ori:'"현장에서 한국 제작팀처럼 생각한다 — 그게 내가 줄 수 있는 최고의 평가다."'},
+    {who:'Donghyun S.',role:'Creative Director',org:'Independent · Gangnam',stars:5,lang:'en',txt:'"For YOGO\'s reposition, they read the Korean cultural anxiety perfectly. No translation feel."',txt_zh:'"YOGO 重定位项目里，他们对韩国文化焦虑的捕捉是精准的 —— 没有"翻译感"。"'},
+    {who:'Yujin C.',role:'Brand Strategist',org:'Consumer Tech · KR',stars:5,lang:'en',txt:'"They write Korean briefs in English better than our local agencies write Korean briefs in Korean."',txt_zh:'"他们用英文写出的韩国 brief，比本地代理用韩文写的更准确。"'},
+    {who:'Daehyun W.',role:'Founder',org:'Robotics Brand · KR',stars:5,lang:'en',txt:'"They reframed what we were selling. The product didn\'t change — the story did. Sales did, too."',txt_zh:'"他们重新定义了我们卖的是什么。产品没变，故事变了 —— 销量也变了。"'},
+    {who:'Eunji P.',role:'Editor',org:'PR Times Korea',stars:5,lang:'en',txt:'"The first AI-native shop we\'ve covered that earns coverage on craft, not novelty."',txt_zh:'"是我们报道过的第一家凭工艺、而不是凭新奇拿到版面的 AI 原生公司。"'},
+  ],
+  BR:[
+    {who:'Lucas F.',role:'Marketing Manager',org:'F1 São Paulo GP',stars:5,lang:'pt',txt:'"They understood that São Paulo isn\'t just another market — it\'s a cultural event. The work treated it that way."',txt_zh:'"他们理解圣保罗不只是一个市场 —— 它是一场文化事件。最终成片就是这样的对待。"',txt_ori:'"Eles entenderam que São Paulo não é só mais um mercado — é um evento cultural. O trabalho tratou assim."'},
+    {who:'Mariana A.',role:'Brand Director',org:'CPG · São Paulo',stars:5,lang:'pt',txt:'"Brazilian audiences want energy and soul. FansAI delivered both without falling into cliché."',txt_zh:'"巴西观众要的是能量与灵魂。FansAI 两者都给了，又没有掉进套路。"',txt_ori:'"O público brasileiro quer energia e alma. A FansAI entregou os dois sem cair em clichê."'},
+    {who:'Pedro R.',role:'Creative Director',org:'Wave Festival Jury',stars:5,lang:'pt',txt:'"In the regional context, their work stands out for editorial discipline — a rare quality."',txt_zh:'"在区域语境里，他们的作品因编辑性纪律脱颖而出 —— 这是稀缺品质。"',txt_ori:'"No contexto regional, seu trabalho se destaca pela disciplina editorial — qualidade rara."'},
+    {who:'Camila T.',role:'Account Lead',org:'Agency · Rio',stars:5,lang:'pt',txt:'"They held the F1 brand discipline at a level our local network often cannot."',txt_zh:'"他们把 F1 的品牌纪律守住了 —— 是本地代理网络常常做不到的。"',txt_ori:'"Mantiveram a disciplina da marca F1 em um nível que nossa rede local frequentemente não consegue."'},
+    {who:'Felipe S.',role:'Director of Production',org:'Studio · São Paulo',stars:5,lang:'en',txt:'"They added cinema scale to a campaign budget that couldn\'t fund a single shoot day in Brazil."',txt_zh:'"他们给了一个根本拍不起一天巴西外景的预算 —— 电影级的画面规模。"'},
+    {who:'Beatriz O.',role:'Head of Content',org:'Sports Media · BR',stars:5,lang:'en',txt:'"São Paulo GP audiences are sharp. They felt the AI was working for them, not at them. That\'s craft."',txt_zh:'"圣保罗站观众很敏锐。他们感受到 AI 是为他们服务的，而不是对着他们 —— 这就是工艺。"'},
+    {who:'Rafael M.',role:'Editor',org:'Meio & Mensagem',stars:5,lang:'en',txt:'"For BR market entry, they didn\'t parachute. They listened. The campaign showed it."',txt_zh:'"进入巴西市场，他们没有空降 —— 他们倾听了。最终成片体现了这一点。"'},
+    {who:'Isabela V.',role:'Founder',org:'Cultural Agency · Rio',stars:5,lang:'en',txt:'"They earned my recommendation when I see the work, not when I read the deck. That\'s the right order."',txt_zh:'"他们靠成片本身赢得了我的推荐 —— 不是靠提案稿。这才是正确的顺序。"'},
+  ],
+  AE:[
+    {who:'Omar A.',role:'OOH Operations',org:'Burj Plaza Media · Dubai',stars:5,lang:'en',txt:'"Best megascreen narrative we\'ve programmed this year. The synchronized AI storytelling raised the bar for the whole strip."',txt_zh:'"今年我们排播过的最佳巨幕叙事。同步 AI 叙事整体抬高了整条街的标杆。"'},
+    {who:'Fatima H.',role:'Brand Director',org:'TCL Middle East',stars:5,lang:'en',txt:'"In a market saturated with luxury production, FansAI cut through with restraint. That\'s skill."',txt_zh:'"在一个被奢侈级制作充斥的市场里，FansAI 靠克制脱颖而出 —— 那是技艺。"'},
+    {who:'Khalid R.',role:'CMO',org:'Retail Group · UAE',stars:5,lang:'en',txt:'"The MENA campaign read as if it had been made in Dubai. No translation feel — that\'s the highest bar."',txt_zh:'"这支中东战役看上去就像是在迪拜本地做的 —— 没有"翻译感"，这是最高标准。"'},
+    {who:'Layla B.',role:'Brand Lead',org:'Hospitality · Abu Dhabi',stars:5,lang:'en',txt:'"They understood Arabic-language brand voice as well as any GCC agency we\'ve hired."',txt_zh:'"他们对阿拉伯语品牌语调的把握，不输任何我们雇过的海湾代理。"'},
+    {who:'Ahmed S.',role:'Editor',org:'Campaign Middle East',stars:5,lang:'en',txt:'"They\'re the first non-MENA AI house we\'d feature as a craft case study."',txt_zh:'"是我们第一家愿意作为"工艺案例"刊载的非中东 AI 公司。"'},
+    {who:'Nadia K.',role:'Production Manager',org:'Burj Production',stars:5,lang:'en',txt:'"They scale beautifully to 4K megascreen output. Zero artifacting at projection scale."',txt_zh:'"他们的画面放到 4K 巨幕完全 hold 得住，零伪影。"'},
+    {who:'Yousef A.',role:'Strategy Director',org:'MENA Effie Jury',stars:5,lang:'en',txt:'"They competed against regional agencies on effectiveness, not novelty. That\'s a serious shift."',txt_zh:'"他们和区域代理拼的是有效性，不是新奇 —— 这是认真的范式转移。"'},
+    {who:'Hassan M.',role:'Creative Partner',org:'Studio · Dubai',stars:5,lang:'en',txt:'"Their respect for Arabic typography alone earned them my recommendation."',txt_zh:'"仅他们对阿拉伯字体的尊重，就足以让我推荐他们。"'},
+  ],
+  CA:[
+    {who:'Sarah K.',role:'Regional Marketing',org:'TCL Canada',stars:5,lang:'en',txt:'"Localized seamlessly for our market without losing the global brand thread. That\'s harder than it sounds."',txt_zh:'"在不丢失全球品牌主线的情况下无缝本地化 —— 这件事比听起来难得多。"'},
+    {who:'Daniel W.',role:'Brand Manager',org:'CPG · Toronto',stars:5,lang:'en',txt:'"Canadian sensibility is subtle — restraint, warmth, a bit dry. FansAI got all three."',txt_zh:'"加拿大的品味很微妙：克制、温度、一点干。FansAI 三个都拿到了。"'},
+    {who:'Émilie L.',role:'Marketing Director',org:'Retail · Montréal',stars:5,lang:'en',txt:'"They thought bilingually from day one — not as a translation step. That changed everything."',txt_zh:'"他们从第一天就是双语思维 —— 不是事后翻译。这改变了一切。"'},
+    {who:'Michael B.',role:'CCO',org:'Independent · Toronto',stars:5,lang:'en',txt:'"The level of finish is rare for an out-of-market partner. Their work could have been made on Queen Street."',txt_zh:'"对一个外部合作方来说完成度极高。他们的作品看上去就像在 Queen Street 拍的。"'},
+    {who:'Anika P.',role:'Senior Editor',org:'Strategy Magazine',stars:5,lang:'en',txt:'"For our \'AI in commercials\' feature, FansAI was the lead case. There wasn\'t a second contender."',txt_zh:'"我们的"AI 商业内容"专题里，FansAI 就是首选案例 —— 没有第二个候选。"'},
+    {who:'Jonathan F.',role:'Director of Brand',org:'Sports League · Canada',stars:5,lang:'en',txt:'"They moved fast without ever moving careless. That balance is the entire business."',txt_zh:'"他们很快，但从不仓促 —— 那个平衡感本身就是生意。"'},
+    {who:'Camille R.',role:'Head of Marketing',org:'Tech Startup · Vancouver',stars:5,lang:'en',txt:'"They built our brand world in two weeks. Two weeks. I\'m still surprised."',txt_zh:'"他们用两周搭出了我们的品牌世界 —— 两周。我现在还在惊讶。"'},
+    {who:'Owen H.',role:'VP Creative',org:'Agency Network · CA',stars:5,lang:'en',txt:'"Hiring FansAI taught my team what \'AI craft\' actually means. The bar moved internally."',txt_zh:'"和 FansAI 合作教会了我团队"AI 工艺"到底意味着什么。我们内部的标准被抬高了。"'},
+  ],
+  SG:[
+    {who:'Adrian L.',role:'Brand Activation',org:'Marina Bay OOH',stars:5,lang:'en',txt:'"Synchronized takeover across our screens — the city felt like one continuous canvas for the duration of the campaign."',txt_zh:'"我们所有屏幕的同步霸屏 —— 整个城市在战役期间像一块连续的画布。"'},
+    {who:'Wei Ming T.',role:'Marketing Lead',org:'Lifestyle Brand · SG',stars:5,lang:'en',txt:'"They understood Singapore as a hub — multi-culture, multi-language. The campaign carried all those weights."',txt_zh:'"他们把新加坡当作枢纽来理解 —— 多文化、多语言。最终战役同时承载了这些重量。"'},
+    {who:'Priya R.',role:'Regional Director',org:'Retail · APAC',stars:5,lang:'en',txt:'"For a Singapore-launched APAC campaign, FansAI gave us the right anchor — confident but not loud."',txt_zh:'"新加坡发起的亚太战役里，FansAI 给了我们正确的锚点 —— 自信但不喧哗。"'},
+    {who:'James L.',role:'Creative Director',org:'Independent · Singapore',stars:5,lang:'en',txt:'"What I respect: they refuse to copy the regional aesthetic shortcuts. They write the work fresh."',txt_zh:'"我欣赏他们一点：拒绝照搬本地美学的捷径。每一支片子都是重新写的。"'},
+    {who:'Mei Lin C.',role:'Brand Director',org:'F&B Group · SG',stars:5,lang:'en',txt:'"Singapore audiences are quietly demanding. FansAI met that bar without being told."',txt_zh:'"新加坡观众是"安静的苛刻" —— FansAI 不用提醒就抵达了那条线。"'},
+    {who:'Kavita N.',role:'Editor',org:'Marketing Interactive',stars:5,lang:'en',txt:'"They\'ve become a default reference when we cover \'AI-native craft in APAC\'."',txt_zh:'"在我们报道"亚太 AI 原生工艺"时，他们已经成为默认参考案例。"'},
+    {who:'Benjamin O.',role:'COO',org:'Production House · Singapore',stars:5,lang:'en',txt:'"Their finishing standards drop directly into our APAC delivery pipeline. No translation needed."',txt_zh:'"他们的完成标准可直接接入我们的亚太交付流水线 —— 无需"翻译"。"'},
+    {who:'Iris S.',role:'Senior Marketing',org:'Luxury Group · APAC',stars:5,lang:'en',txt:'"Luxury demands restraint at scale. FansAI is one of the few houses that can hold both."',txt_zh:'"奢侈品要的是"规模化的克制"。FansAI 是少数能同时握住两端的公司。"'},
+  ],
+};
+const GLOBAL_REVIEWS=[
+  {who:'TCL Global Marketing',role:'CMO Office',org:'TCL · Olympic Partner',stars:5,lang:'en',
+   txt:'"FansAI held our brand thread across four continents during the Olympic cycle. One creative team, zero loss of voice."',
+   txt_zh:'"FansAI 在奥运周期里跨四大洲守住了我们的品牌主线 —— 一支团队，零调性损耗。"'},
+  {who:'Momcozy USA',role:'Brand Team',org:'Momcozy × North America',stars:5,lang:'en',
+   txt:'"The Big Hugs Christmas campaign cleared an emotional bar no AI-native shop had hit for us before."',
+   txt_zh:'"Big Hugs 圣诞战役达到了一个情感门槛 —— 此前没有任何 AI 原生公司为我们达到过。"'},
+  {who:'Miniso Global',role:'IP Strategy',org:'MINISO HQ',stars:5,lang:'en',
+   txt:'"Three IPs, one tone, ten days to Disney first-pass. FansAI is now our default for triple-IP work."',
+   txt_zh:'"三个 IP、统一调性、迪士尼 10 天首过 —— FansAI 已是我们三 IP 项目的默认选择。"'},
+  {who:'Disney Licensing',role:'EMEA Approval Desk',org:'The Walt Disney Company',stars:5,lang:'en',
+   txt:'"Their telescopic visual transition between IP universes earned a first-attempt approval — that is rare."',
+   txt_zh:'"他们在 IP 宇宙之间的「望远镜式」视觉转场，让我们首次提案就批了 —— 这种情况很少见。"'},
+  {who:'毛戈平品牌中心',role:'品牌副总经理',org:'MAOGEPING / 毛戈平',stars:5,lang:'zh',
+   txt:'"敦煌飞天复原把「修复」做成叙事核心，让我们的产品有了文化深度的承载。"',
+   txt_zh:'"敦煌飞天复原把「修复」做成叙事核心，让我们的产品有了文化深度的承载。"'},
+  {who:'伊利金典 SATINE',role:'品牌中心',org:'SATINE / 伊利金典',stars:5,lang:'zh',
+   txt:'"春节战役从 brief 到上线 18 天 —— 是当季最被讨论的一支。这种产能配置以前不可能。"',
+   txt_zh:'"春节战役从 brief 到上线 18 天 —— 是当季最被讨论的一支。这种产能配置以前不可能。"'},
+  {who:'苏州博物馆项目组',role:'非遗项目负责人',org:'御窑金砖光影夜市',stars:5,lang:'zh',
+   txt:'"全国首个 AI 驱动的非遗叙事光影 —— 这个深度没有 FansAI 的创作判断，做不出来。"',
+   txt_zh:'"全国首个 AI 驱动的非遗叙事光影 —— 这个深度没有 FansAI 的创作判断，做不出来。"'},
+  {who:'F1 Operations',role:'Regional Partner',org:'F1 São Paulo GP',stars:5,lang:'pt',
+   txt:'"They treated São Paulo GP as a cultural event, not just a market. The film read accordingly."',
+   txt_zh:'"他们把圣保罗站当作文化事件而非单纯市场 —— 最终成片就是这种气质。"',
+   txt_ori:'"Eles trataram o GP de São Paulo como um evento cultural, não apenas um mercado. O filme se lê assim."'},
+  {who:'TCL Japan',role:'Senior Producer',org:'TCL Japan · Olympics',stars:5,lang:'ja',
+   txt:'"The synchronized Shibuya OOH narrative passed legal, brand and aesthetic review in a single pass."',
+   txt_zh:'"涩谷 OOH 的同步叙事在法务、品牌、审美三关上一次过审。"',
+   txt_ori:'「渋谷OOHの同期ナラティブが、法務・ブランド・美術の三者レビューを一回で通過した。」'},
+  {who:'W&V Magazin',role:'Industry Editor',org:'W&V · DACH',stars:5,lang:'de',
+   txt:'"FansAI moved the floor on what \'AI-native commercial work\' means in Europe."',
+   txt_zh:'"FansAI 抬高了「AI 原生商业内容」在欧洲的下限。"',
+   txt_ori:'„FansAI hat die Messlatte dafür, was \'AI-native Commercial Work\' in Europa bedeutet, neu gesetzt."'},
+];
+
+const T_CITY=['London','New York','Tokyo','Berlin','Paris','São Paulo','Singapore','Dubai','Seoul','Sydney','Milan','Amsterdam'];
+const T_PROJ=['TVC #A24','OOH #M07','IP #DSN-12','AIGC #S04','VRL #NY9','MEGA #120','RTB #K3','MAP #ICH'];
+const T_STAT=['render queued','04:12 ETA','rendering 38%','frame 1840/4800','final pass','published'];
+
+// ============================================================
+// LEFT-PANEL VIEW ROUTER
+// ============================================================
+const CAPABILITIES=[
+  {n:'High-Fidelity AI Video',n_zh:'高保真 AI 视频',tag:'AI · VIDEO',d:'Production-grade quality comparable to live-action, with optimized cost efficiency.',d_zh:'电影级品质，可比拟实拍，成本结构更优。'},
+  {n:'Creative Commercials (TVC)',n_zh:'创意 TVC',tag:'TVC · STORY',d:'Emotionally-charged storytelling optimized for viral shareability.',d_zh:'情绪驱动叙事，针对裂变传播优化。'},
+  {n:'Brand IP Development',n_zh:'品牌 IP 开发',tag:'IP · LIFECYCLE',d:'Full-lifecycle IP services from conceptual design to dynamic execution.',d_zh:'IP 全生命周期服务，从概念到动态执行。'},
+  {n:'Megascreen & OOH Content',n_zh:'巨幕与 OOH 内容',tag:'OOH · 120m',d:'Dominating urban landscapes from 120-meter displays to city-wide visual takeovers.',d_zh:'120 米级巨幕到城市级霸屏的整合内容。'},
+  {n:'Custom AI Digital Avatars',n_zh:'品牌专属 AI 数字人',tag:'AVATAR · SCALE',d:'Bespoke brand personas designed for scalable, automated content operations.',d_zh:'品牌定制人设，支持规模化、自动化内容运营。'},
+  {n:'Cultural Narrative Revitalization',n_zh:'文化叙事激活',tag:'CULTURE · AI',d:'Reimagining the intersection of brand heritage and modern culture through AI.',d_zh:'以 AI 重新想象品牌遗产与当代文化的交汇点。'},
+  {n:'Offline Immersive Experiences',n_zh:'线下沉浸体验',tag:'SPATIAL · INSTALL',d:'AI-enhanced spatial storytelling and bespoke brand installations.',d_zh:'AI 增强的空间叙事与品牌定制装置。'},
+  {n:'Viral Video Creation',n_zh:'病毒视频创作',tag:'VIRAL · CELEB',d:'Strategic celebrity / IP alignment and collaborative content creation.',d_zh:'明星 / IP 策略协同与共创内容。'},
+  {n:'2D Animation Production',n_zh:'2D 动画制作',tag:'2D · ANIMATE',d:'Crafting compelling brand narratives through sophisticated animation.',d_zh:'用精致动画讲品牌故事。'},
+  {n:'AI Empowerment Consulting',n_zh:'AI 赋能咨询',tag:'CONSULT · OPS',d:'Helping brands establish proprietary AI-driven production workflows.',d_zh:'协助品牌建立专属 AI 驱动的内容生产工作流。'},
+];
+let currentView='overview';
+const leftPanel=document.getElementById('leftPanel');
+
+function renderLeftView(){
+  // only overview view remains in left panel (trending board);
+  // honors moved to right-bottom panel · reviews always in right-top
+  return renderCasesView();
+}
+
+function panelShell(kicker,title,sub,body,extra=''){
+  return `<div class="ph">
+    <div class="ki"><span>${kicker}</span><span class="ct">${extra}</span></div>
+    <div class="ti">${title} <em>${sub}</em>
+    </div>
+  </div>${body}`;
+}
+
+function renderCasesView(){
+  const L=t();
+  const arr=CASES.trending;
+  const hint=`<div style="padding:10px 18px 4px;font-size:10.5px;color:var(--dim);letter-spacing:.04em">${L.lCases.hint}</div>`;
+  const list=`<div class="list">${arr.map((c,i)=>{
+    const region = LANG==='zh' ? c.region : (c.region_en || c.region);
+    return `<div class="crow ${i===0?'on':''}">
+      <div class="rk-chip">${String(i+1).padStart(2,'0')}</div>
+      <div class="thumb"></div>
+      <div class="ci">
+        <div class="nm">${c.n}</div>
+        <div class="heat-row"><span class="heat">${c.hot.toFixed(1)}</span><span class="heat-lb">${L.lCases.heatLb}</span></div>
+        <div class="region">${region}</div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+  leftPanel.innerHTML = panelShell(L.lCases.kicker, L.lCases.title, L.lCases.sub, hint+list, String(arr.length).padStart(2,'0'));
+  leftPanel.querySelectorAll('.crow').forEach(r=>r.onclick=()=>{
+    leftPanel.querySelectorAll('.crow').forEach(x=>x.classList.remove('on'));
+    r.classList.add('on');
+  });
+}
+
+function renderMarketsView(){
+  const L=t();
+  const tierLb=LANG==='zh'?['核心','活跃','拓展']:['Strategic','Active','Emerging'];
+  const sorted=[...points].sort((a,b)=>a.tier-b.tier||b.campaigns-a.campaigns);
+  const list=`<div class="vlist">${sorted.map(p=>`
+    <div class="mkt-row ${p.iso2===sigContext?'on':''}" data-iso="${p.iso2}">
+      <span class="mf">${p.flag}</span>
+      <div class="mn"><b>${LANG==='zh'?p.zh:p.en}</b><small>${p.region} · ${tierLb[p.tier]}</small></div>
+      <div class="mv"><b>${p.campaigns}</b>${LANG==='zh'?'战役':'campaigns'}</div>
+      <span class="dot t${p.tier}"></span>
+    </div>`).join('')}</div>`;
+  leftPanel.innerHTML = panelShell(LANG==='zh'?'全部市场':'ALL MARKETS', LANG==='zh'?'市场覆盖':'Markets', LANG==='zh'?'— 按战役量排序':'— sorted by campaign volume', list, String(points.length).padStart(2,'0'));
+  leftPanel.querySelectorAll('.mkt-row').forEach(r=>r.onclick=()=>{
+    const p=points.find(x=>x.iso2===r.dataset.iso); if(p)focusCountry(p,true);
+  });
+}
+
+function renderCapsView(){
+  const L=t();
+  const list=`<div class="vlist">${CAPABILITIES.map((c,i)=>`
+    <div class="cap-card">
+      <div class="ch">
+        <div class="ci">${String(i+1).padStart(2,'0')}</div>
+        <div class="cn">${LANG==='zh'?c.n_zh:c.n}</div>
+        <div class="cs">${c.tag}</div>
+      </div>
+      <div class="cd">${LANG==='zh'?c.d_zh:c.d}</div>
+    </div>`).join('')}</div>`;
+  leftPanel.innerHTML = panelShell(LANG==='zh'?'能力矩阵':'CAPABILITY MATRIX', LANG==='zh'?'能力矩阵':'Capabilities', LANG==='zh'?'— 服务清单':'— service matrix', list, String(CAPABILITIES.length).padStart(2,'0'));
+}
+
+// ============================================================
+// RIGHT — signals + filter
+// ============================================================
+const sigEl=document.getElementById('signals');
+const sigFilter='reviews'; // locked — only reviews shown in right panel
+let sigContext=null; // current country iso2 or null for global
+
+// per-card display mode store: 'ui' | 'ori'
+const sigCardMode={};
+
+function pickTxt(r,mode){
+  if(mode==='ori') return r.txt_ori || (LANG==='zh' ? (r.txt_zh||r.txt) : r.txt);
+  return LANG==='zh' ? (r.txt_zh || r.txt) : r.txt;
+}
+function pickField(r,key,mode){
+  // for who/src — fall back gracefully
+  if(LANG==='zh' && r[key+'_zh']) return r[key+'_zh'];
+  return r[key];
+}
+
+function getCurrentReviews(){
+  if(!sigContext) return GLOBAL_REVIEWS.slice(0,12);
+  const local = REVIEWS[sigContext] || [];
+  if(local.length >= 12) return local.slice(0,12);
+  return [...local, ...GLOBAL_REVIEWS].slice(0,12);
+}
+
+// rotating PAGE indexes (per market) — reset on focusCountry
+const PAGE_SIZE = 3;
+let reviewIdx=0, honorIdx=0;
+const honorsEl=document.getElementById('honors');
+const reviewDotsEl=document.getElementById('reviewDots');
+const honorDotsEl=document.getElementById('honorDots');
+
+function renderReviewDots(total,active){
+  reviewDotsEl.innerHTML = Array.from({length:total},(_,i)=>`<span class="d ${i===active?'on':''}"></span>`).join('');
+}
+function renderHonorDots(total,active){
+  honorDotsEl.innerHTML = Array.from({length:total},(_,i)=>`<span class="d ${i===active?'on':''}"></span>`).join('');
+}
+
+function buildReviewCard(r,i){
+  const id=`rev-${sigContext||'g'}-${i}`;
+  const lang=(r.lang||'en').toUpperCase();
+  const hasOri = r.txt_ori || (r.lang && r.lang !== (LANG==='zh'?'zh':'en'));
+  const defaultMode = hasOri ? 'ori' : 'ui';
+  const mode = sigCardMode[id] || defaultMode;
+  const uiLb = LANG==='zh'?'中':'EN';
+  const oriLb = `ORI·${lang}`;
+  const toggle = hasOri
+    ? `<span class="ori-btn ${mode==='ori'?'on':''}" data-id="${id}">${mode==='ori'?oriLb:uiLb}</span>`
+    : '';
+  const txt = pickTxt(r,mode);
+  const stars = '★'.repeat(r.stars||5) + `<span class="dim">${'★'.repeat(5-(r.stars||5))}</span>`;
+  return `<div class="rev-card">
+    <div class="pills">${toggle}</div>
+    <div class="rh">
+      <div class="av">${r.who[0]}</div>
+      <div class="rn"><b>${r.who}</b><small>${r.role} · ${r.org}</small></div>
+    </div>
+    <div class="stars">${stars}</div>
+    <div class="rt">${txt}</div>
+  </div>`;
+}
+
+function renderReviews(){
+  const arr=getCurrentReviews();
+  if(!arr.length){
+    sigEl.innerHTML=`<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px">No reviews.</div>`;
+    reviewDotsEl.innerHTML=''; return;
+  }
+  const pageCount = Math.ceil(arr.length / PAGE_SIZE);
+  const page = reviewIdx % pageCount;
+  const slice = arr.slice(page*PAGE_SIZE, page*PAGE_SIZE + PAGE_SIZE);
+  sigEl.innerHTML = `<div class="sig-stage" key="rev-${page}">${
+    slice.map((r,localI)=>buildReviewCard(r, page*PAGE_SIZE + localI)).join('')
+  }</div>`;
+  renderReviewDots(pageCount, page);
+  sigEl.querySelectorAll('.ori-btn').forEach(b=>b.onclick=(e)=>{
+    e.stopPropagation();
+    sigCardMode[b.dataset.id]=sigCardMode[b.dataset.id]==='ori'?'ui':'ori';
+    renderReviews();
+  });
+}
+
+// HONORS bottom-right — current market's AWARD + PRESS + global fill to 12
+function getCurrentHonors(){
+  const globalPool=[];
+  Object.entries(LOCAL).forEach(([iso,sigs])=>{
+    sigs.filter(s=>s.pill==='AWARD'||s.pill==='PRESS').forEach(s=>globalPool.push({...s,iso}));
+  });
+  if(!sigContext) return globalPool.slice(0,12);
+  const local = LOCAL[sigContext]
+    ? LOCAL[sigContext].filter(s=>s.pill==='AWARD'||s.pill==='PRESS').map(s=>({...s,iso:sigContext}))
+    : [];
+  if(local.length >= 12) return local.slice(0,12);
+  const fillers = globalPool.filter(s=>s.iso!==sigContext);
+  return [...local, ...fillers].slice(0,12);
+}
+
+function buildHonorCard(s,i){
+  const id=`hon-${sigContext||'g'}-${s.pill}-${i}`;
+  const lang=(s.lang||'en').toUpperCase();
+  const hasOri = s.txt_ori || (s.lang && s.lang !== (LANG==='zh'?'zh':'en'));
+  const defaultMode = hasOri ? 'ori' : 'ui';
+  const mode = sigCardMode[id] || defaultMode;
+  const uiLb = LANG==='zh'?'中':'EN';
+  const oriLb = `ORI·${lang}`;
+  const toggle = hasOri
+    ? `<span class="ori-btn ${mode==='ori'?'on':''}" data-id="${id}">${mode==='ori'?oriLb:uiLb}</span>`
+    : '';
+  const txt = pickTxt(s,mode);
+  const pillLb = LANG==='zh' ? (s.pill==='AWARD'?'奖项':'媒体') : s.pill;
+  const pillColor = s.pill==='AWARD' ? 'var(--ochre)' : 'var(--indigo)';
+  const pillBg = s.pill==='AWARD' ? 'rgba(200,148,86,.05)' : 'rgba(91,100,133,.05)';
+  const pillBorder = s.pill==='AWARD' ? 'rgba(200,148,86,.35)' : 'rgba(91,100,133,.35)';
+  return `<div class="sig">
+    <div class="hd">
+      <div style="min-width:0;flex:1">
+        <div class="who">${s.who}</div>
+        <div class="src">${s.src}</div>
+      </div>
+      <div class="pills">
+        ${toggle}
+        <span class="pill" style="color:${pillColor};border:1px solid ${pillBorder};padding:2px 7px;border-radius:5px;letter-spacing:.16em;background:${pillBg};font-family:'Fira Code';font-size:9px">${pillLb}</span>
+      </div>
+    </div>
+    <div class="txt">${txt}</div>
+  </div>`;
+}
+
+function renderHonors(){
+  const arr=getCurrentHonors();
+  if(!arr.length){
+    honorsEl.innerHTML=`<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px">${LANG==='zh'?'此市场暂无获奖记录':'No honors for this market.'}</div>`;
+    honorDotsEl.innerHTML=''; return;
+  }
+  const pageCount = Math.ceil(arr.length / PAGE_SIZE);
+  const page = honorIdx % pageCount;
+  const slice = arr.slice(page*PAGE_SIZE, page*PAGE_SIZE + PAGE_SIZE);
+  honorsEl.innerHTML = `<div class="sig-stage" key="hon-${page}">${
+    slice.map((s,localI)=>buildHonorCard(s, page*PAGE_SIZE + localI)).join('')
+  }</div>`;
+  renderHonorDots(pageCount, page);
+  honorsEl.querySelectorAll('.ori-btn').forEach(b=>b.onclick=(e)=>{
+    e.stopPropagation();
+    sigCardMode[b.dataset.id]=sigCardMode[b.dataset.id]==='ori'?'ui':'ori';
+    renderHonors();
+  });
+}
+
+// renderSignals → now just renderReviews + renderHonors driven by 5s rotation
+function renderSignals(){
+  renderReviews();
+  renderHonors();
+}
+
+// 5-second auto-rotation
+let __rotateTimer=null;
+function startRotation(){
+  if(__rotateTimer) clearInterval(__rotateTimer);
+  __rotateTimer=setInterval(()=>{
+    const revPages=Math.ceil(getCurrentReviews().length / PAGE_SIZE);
+    const honPages=Math.ceil(getCurrentHonors().length / PAGE_SIZE);
+    if(revPages>1){ reviewIdx=(reviewIdx+1)%revPages; renderReviews(); }
+    if(honPages>1){ honorIdx=(honorIdx+1)%honPages; renderHonors(); }
+  },5000);
+}
+
+renderSignals();
+startRotation();
+
+// sub-nav removed — left panel is always overview (trending board)
+
+// ============================================================
+// applyI18n  ·  switches all chrome strings; data is bilingual
+// ============================================================
+function applyI18n(){
+  const L=t();
+  // brand
+  document.querySelector('.brand .title').innerHTML = `${L.brandTitle} <em>${L.brandSub}</em>`;
+  document.getElementById('searchInput').placeholder = L.searchPh;
+  document.getElementById('liveLb').textContent = L.live;
+  // sub-nav
+  const navMap={overview:L.nav.overview,markets:L.nav.markets,caps:L.nav.caps};
+  // subnav & meta strip removed
+  // left panel — re-render via view router
+  renderLeftView();
+  // center
+  const cph=document.querySelector('.center .ph');
+  cph.querySelector('.ki span:first-child').textContent=L.centerKicker;
+  cph.querySelector('.ti').innerHTML=`${L.centerTitle} <em>${L.centerSub}</em>`;
+  // kpis — MARKETS is now back in normal .kpi[0], plus CAMPAIGNS, AWARDS
+  const kpiLs=document.querySelectorAll('.kpi .l');
+  kpiLs[0].textContent=L.kpis.markets;
+  kpiLs[1].textContent=L.kpis.camp;
+  kpiLs[2].textContent=L.kpis.awards;
+  // ticker lead
+  document.querySelector('.ticker .t').textContent = L.tickerLead;
+  // country card labels
+  const ccls=document.querySelectorAll('.cc .l');
+  ccls[0].textContent=L.cc.camp; ccls[1].textContent=L.cc.reach; ccls[2].textContent=L.cc.ooh; ccls[3].textContent=L.cc.aw;
+  document.querySelector('.cc-cli .l').textContent=L.cc.cli;
+  document.querySelector('.cc-bar .lb span').textContent=L.cc.pen;
+  // legend  — dynamic counts from data
+  const lg=document.querySelector('.legend');
+  const lgN=lg.querySelectorAll('.row .n');
+  const tierCt=[0,1,2].map(t=>points.filter(p=>p.tier===t).length);
+  lg.querySelector('.lt').textContent=L.legend.title;
+  const lgL=lg.querySelectorAll('.row .lf');
+  const suffix = LANG==='zh' ? ['核心','活跃','拓展'] : ['','',''];
+  lgL[0].innerHTML=`<span class="sw"></span>${L.legend.strat}${suffix[0]?' '+suffix[0]:''}`;
+  lgL[1].innerHTML=`<span class="sw s2"></span>${L.legend.act}${suffix[1]?' '+suffix[1]:''}`;
+  lgL[2].innerHTML=`<span class="sw s3"></span>${L.legend.emerg}${suffix[2]?' '+suffix[2]:''}`;
+  lgN[0].textContent=String(tierCt[0]).padStart(2,'0');
+  lgN[1].textContent=String(tierCt[1]).padStart(2,'0');
+  lgN[2].textContent=String(tierCt[2]).padStart(2,'0');
+  // center header count (MARKETS value is inside #cddCt — updated above)
+  document.querySelector('.center .ki .ct').textContent=`${points.length} / 86`;
+  // subnav removed
+  // right panel
+  // right-top reviews panel header
+  const rTop=document.querySelector('.rpanel-top .ph');
+  if(rTop){
+    rTop.querySelector('.ki span:first-child').textContent=L.sigKicker;
+    rTop.querySelector('.ti').innerHTML=`${L.sigTitle} <em>${L.sigSub}</em>`;
+  }
+  // right-bottom honors panel header
+  const rBot=document.querySelector('.rpanel-bot .ph');
+  if(rBot){
+    rBot.querySelector('.ki span:first-child').textContent=L.honKicker;
+    rBot.querySelector('.ti').innerHTML=`${L.honTitle} <em>${L.honSub}</em>`;
+  }
+  // dropdown search placeholder (menu lives inside .ccard now)
+  document.getElementById('cddCt').textContent=points.length;
+  document.getElementById('cddSearch').placeholder=L.cdd.searchPh;
+  // rtabs removed — no-op
+  // footer
+  const fL=document.querySelector('.footer .l');
+  fL.innerHTML=`<span class="live-dot"></span><b>FANSAI / FSCITY.ART</b><span class="sep">/</span><span>${L.footL}</span><span class="sep">/</span><span>${L.footEd}</span>`;
+  const fR=document.querySelector('.footer .r');
+  fR.innerHTML=`<span>${L.footR1}</span><span class="sep">·</span><span>${L.footR2}</span><span class="sep">·</span><span>nico.zeng@fscity.art</span>`;
+  // re-render dynamic
+  buildCddList(document.getElementById('cddSearch').value);
+  renderSignals();
+}
+
+document.getElementById('langTog').addEventListener('click',(e)=>{
+  const sp=e.target.closest('span'); if(!sp)return;
+  LANG=sp.dataset.l;
+  document.querySelectorAll('#langTog span').forEach(x=>x.classList.toggle('on',x.dataset.l===LANG));
+  document.documentElement.lang = LANG==='zh'?'zh-CN':'en';
+  applyI18n();
+});
+
+// ============================================================
+// GLOBE — hex polygons (no texture dependency)
+// ============================================================
+const globeEl=document.getElementById('globe');
+
+const points=COUNTRIES.map(c=>({
+  iso2:c[0],iso3:c[1],zh:c[2],en:c[3],region:c[4],lat:c[5],lng:c[6],flag:c[7],
+  tier:c[8],campaigns:c[9],reach:c[10],ooh:c[11],awards:c[12],pen:c[13],top:c[14],cap:c[15],clients:c[16]
+}));
+
+function tierColor(t){return t===0?'#c89456':t===1?'#7d8b6e':'#5a5246'}
+
+// arcs from US + London hubs
+const hub=points.find(p=>p.iso2==='US'),lon=points.find(p=>p.iso2==='GB');
+const arcs=[];
+points.filter(p=>p!==hub).forEach(p=>{
+  arcs.push({startLat:hub.lat,startLng:hub.lng,endLat:p.lat,endLng:p.lng,
+    color:[p.tier===0?'rgba(200,148,86,.9)':'rgba(200,148,86,.5)','rgba(180,90,60,.15)']});
+});
+['DE','JP','SG','AE','KR','CN'].forEach(iso=>{
+  const p=points.find(x=>x.iso2===iso);
+  if(!p) return;
+  arcs.push({startLat:lon.lat,startLng:lon.lng,endLat:p.lat,endLng:p.lng,
+    color:['rgba(125,139,110,.8)','rgba(91,100,133,.2)']});
+});
+
+let world=null;
+try{
+  world = Globe()(globeEl)
+    .backgroundColor('rgba(0,0,0,0)')
+    .showAtmosphere(true)
+    .atmosphereColor('#c89456')
+    .atmosphereAltitude(0.16)
+    .pointOfView({lat:40,lng:-30,altitude:2.0},0);
+
+  // dark museum globe material — no texture needed
+  world.globeMaterial().color = new THREE.Color('#1a1610');
+  world.globeMaterial().emissive = new THREE.Color('#100c08');
+  world.globeMaterial().emissiveIntensity = 0.25;
+  world.globeMaterial().shininess = 4;
+
+  // arcs
+  world.arcsData(arcs)
+    .arcColor('color').arcStroke(.4)
+    .arcDashLength(.4).arcDashGap(.7).arcDashAnimateTime(2600)
+    .arcAltitudeAutoScale(.45);
+
+  // points (cities)
+  world.pointsData(points)
+    .pointLat('lat').pointLng('lng')
+    .pointColor(p=>tierColor(p.tier))
+    .pointAltitude(p=>p.tier===0?0.05:p.tier===1?0.025:0.01)
+    .pointRadius(p=>p.tier===0?0.6:p.tier===1?0.4:0.25)
+    .pointLabel(p=>`<div style="background:rgba(22,20,15,.96);border:1px solid #c89456;border-radius:10px;
+      padding:9px 13px;font:600 12px 'Fira Sans';color:#ece4d3;backdrop-filter:blur(10px);
+      box-shadow:0 8px 24px rgba(0,0,0,.6)">
+      ${p.flag} <b style="color:#c89456">${p.en}</b> <span style="color:#8a8170;font-weight:400">· ${p.zh}</span><br>
+      <span style="font-size:10px;color:#8a8170;font-weight:400;letter-spacing:.05em;font-family:Fira Code">
+      ${p.campaigns} CAMPAIGNS · ${p.reach}M REACH</span></div>`)
+    .onPointClick(p=>focusCountry(p,true));
+
+  // rings on strategic markets
+  world.ringsData(points.filter(p=>p.tier===0))
+    .ringLat('lat').ringLng('lng')
+    .ringColor(()=>t=>`rgba(200,148,86,${0.7*(1-t)})`)
+    .ringMaxRadius(3.8).ringPropagationSpeed(1.8).ringRepeatPeriod(1900);
+
+  // labels
+  world.labelsData(points.filter(p=>p.tier<=1))
+    .labelLat('lat').labelLng('lng')
+    .labelText(p=>p.cap)
+    .labelSize(p=>p.tier===0?0.5:0.32)
+    .labelColor(p=>p.tier===0?'rgba(236,228,211,.95)':'rgba(201,191,169,.45)')
+    .labelDotRadius(0).labelAltitude(0.014).labelResolution(2);
+
+  // hex polygons from countries GeoJSON (parchment dotted topology)
+  fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+    .then(r=>r.json())
+    .then(topo=>{
+      // convert TopoJSON via global topojson if avail, else use simpler approach:
+      // fallback to direct geojson
+      return fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson').then(r=>r.json());
+    })
+    .then(geo=>{
+      world.hexPolygonsData(geo.features)
+        .hexPolygonResolution(3)
+        .hexPolygonMargin(0.3)
+        .hexPolygonUseDots(true)
+        .hexPolygonColor(()=>'rgba(236,228,211,0.22)');
+    })
+    .catch(()=>{ /* arcs+points still render */ });
+
+  const ctrls=world.controls();
+  ctrls.autoRotate=true; ctrls.autoRotateSpeed=0.32; ctrls.enableZoom=true;
+  ctrls.minDistance=180; ctrls.maxDistance=600;
+
+  function nearestToCenter(){
+    const pov=world.pointOfView();
+    let best=null,bd=1e9;
+    points.forEach(p=>{
+      const dLat=p.lat-pov.lat,dLng=((p.lng-pov.lng+540)%360)-180;
+      const d=dLat*dLat+dLng*dLng;
+      if(d<bd){bd=d;best=p}
+    });
+    return best;
+  }
+  let lastFocus=null;
+  ctrls.addEventListener('change',()=>{
+    ctrls.autoRotate=false;
+    const p=nearestToCenter();
+    if(p && p!==lastFocus){lastFocus=p;focusCountry(p);}
+  });
+
+  function resize(){const r=globeEl.getBoundingClientRect();world.width(r.width).height(r.height);}
+  new ResizeObserver(resize).observe(globeEl); resize();
+
+  window.__focusFly=(p)=>{ctrls.autoRotate=false;world.pointOfView({lat:p.lat,lng:p.lng,altitude:1.8},1200);};
+  setTimeout(()=>document.getElementById('loader').classList.add('hide'),800);
+}catch(err){
+  console.error('Globe init failed',err);
+  document.getElementById('loader').innerHTML='<div style="color:var(--terra);font-size:12px;font-family:Fira Code">GLOBE INIT FAILED · CHECK NETWORK</div>';
+}
+
+function focusCountry(p,fly=false){
+  document.getElementById('cFlag').textContent=p.flag;
+  document.getElementById('cName').textContent=p.en;
+  document.getElementById('cZh').textContent=`${p.zh} · ${p.region}`;
+  document.getElementById('cIso').textContent=`${p.iso3} · ${p.region.toUpperCase()}`;
+  document.getElementById('cCamp').textContent=p.campaigns;
+  document.getElementById('cReach').textContent=p.reach+'M';
+  document.getElementById('cOoh').textContent=p.ooh;
+  document.getElementById('cAw').textContent=p.awards;
+  document.getElementById('cPen').style.width=p.pen+'%';
+  document.getElementById('cPenLb').textContent=p.pen+'%';
+  document.getElementById('cChips').innerHTML=p.clients.map(c=>`<span class="chip">${c}</span>`).join('');
+  sigContext = p.iso2;
+  reviewIdx = 0; honorIdx = 0;
+  renderSignals();
+  startRotation();
+  // sync dropdown list highlight (country info itself displayed by .ccard's own elements)
+  document.querySelectorAll('#cddList .opt').forEach(o=>o.classList.toggle('on',o.dataset.iso===p.iso2));
+  if(fly && window.__focusFly) window.__focusFly(p);
+}
+
+// ============================================================
+// COUNTRY DROPDOWN
+// ============================================================
+const ccardEl=document.getElementById('ccard'),
+      cddBtn=document.getElementById('cddBtn'),
+      cddMenu=document.getElementById('cddMenu'),
+      cddList=document.getElementById('cddList'),
+      cddSearch=document.getElementById('cddSearch');
+document.getElementById('cddCt').textContent=points.length;
+
+function buildCddList(filter=''){
+  const f=filter.trim().toLowerCase();
+  const L=t();
+  const tierOrder=[[0,L.cdd.tiers[0]],[1,L.cdd.tiers[1]],[2,L.cdd.tiers[2]]];
+  let html='';
+  tierOrder.forEach(([t,lb])=>{
+    const arr=points.filter(p=>p.tier===t && (
+      !f || p.en.toLowerCase().includes(f) || p.zh.includes(f) ||
+      p.iso2.toLowerCase().includes(f) || p.iso3.toLowerCase().includes(f) ||
+      p.region.toLowerCase().includes(f)
+    ));
+    if(!arr.length)return;
+    html+=`<div class="grp">${lb} · ${arr.length}</div>`;
+    html+=arr.map(p=>`
+      <div class="opt ${p.iso2===sigContext?'on':''}" data-iso="${p.iso2}">
+        <span class="ot t${p.tier}"></span>
+        <span class="of">${p.flag}</span>
+        <span><b style="font-weight:600">${p.en}</b> <span style="color:var(--muted);font-size:11px">· ${p.zh}</span></span>
+        <span class="oz">${p.campaigns}</span>
+      </div>`).join('');
+  });
+  if(!html)html=`<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No match</div>`;
+  cddList.innerHTML=html;
+  cddList.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{
+    const p=points.find(x=>x.iso2===o.dataset.iso);
+    if(p){focusCountry(p,true);ccardEl.classList.remove('open');cddSearch.value='';buildCddList();}
+  });
+}
+buildCddList();
+
+cddBtn.onclick=(e)=>{
+  e.stopPropagation();
+  ccardEl.classList.toggle('open');
+  if(ccardEl.classList.contains('open'))setTimeout(()=>cddSearch.focus(),100);
+};
+cddSearch.oninput=()=>buildCddList(cddSearch.value);
+cddMenu.addEventListener('click',e=>e.stopPropagation());
+document.addEventListener('click',(e)=>{
+  if(!ccardEl.contains(e.target)) ccardEl.classList.remove('open');
+});
+focusCountry(points[0]);
+
+// ============================================================
+// SEARCH
+// ============================================================
+const sInput=document.getElementById('searchInput'),sBox=document.getElementById('suggest');
+const ALL_CASES=[...CASES.campaign,...CASES.ip,...CASES.culture];
+sInput.addEventListener('input',()=>{
+  const q=sInput.value.trim().toLowerCase();
+  if(!q){sBox.classList.remove('open');return}
+  const c=points.filter(p=>
+    p.en.toLowerCase().includes(q)||p.zh.includes(q)||
+    p.cap.toLowerCase().includes(q)||p.iso2.toLowerCase()===q||p.iso3.toLowerCase()===q||
+    p.clients.some(x=>x.toLowerCase().includes(q))
+  ).slice(0,6);
+  const cs=ALL_CASES.filter(x=>x.n.toLowerCase().includes(q)||x.cli.toLowerCase().includes(q)).slice(0,4);
+  if(!c.length && !cs.length){
+    sBox.innerHTML=`<div class="item" style="color:var(--muted);cursor:default;justify-content:center">No results</div>`;
+    sBox.classList.add('open');return;
+  }
+  sBox.innerHTML = c.map(p=>
+    `<div class="item" data-iso="${p.iso2}">
+      <span>${p.flag}  <b>${p.en}</b>  <span class="reg">· ${p.zh}</span></span>
+      <span class="kind">Market</span>
+    </div>`).join('') + cs.map(x=>
+    `<div class="item" style="cursor:default">
+      <span><b>${x.n}</b>  <span class="reg">· ${x.cli}</span></span>
+      <span class="kind">Case</span>
+    </div>`).join('');
+  sBox.classList.add('open');
+  sBox.querySelectorAll('.item[data-iso]').forEach(el=>el.onclick=()=>{
+    const p=points.find(x=>x.iso2===el.dataset.iso);
+    if(p){focusCountry(p,true);sInput.value=p.en;sBox.classList.remove('open');}
+  });
+});
+sInput.addEventListener('blur',()=>setTimeout(()=>sBox.classList.remove('open'),200));
+sInput.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){const f=sBox.querySelector('.item[data-iso]');if(f)f.click();}
+});
+window.addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();sInput.focus();sInput.select();}
+});
+
+// ============================================================
+// LIVE
+// ============================================================
+let camp=147;
+setInterval(()=>{
+  camp += Math.random()>0.7?1:0;
+  document.getElementById('kpiCamp').textContent=camp;
+  document.getElementById('tCity').textContent=T_CITY[Math.floor(Math.random()*T_CITY.length)];
+  document.getElementById('tProj').textContent=T_PROJ[Math.floor(Math.random()*T_PROJ.length)];
+  document.getElementById('tStat').textContent=T_STAT[Math.floor(Math.random()*T_STAT.length)];
+},2400);
+setInterval(()=>{
+  // utc element removed
+},1000);
+
+// initial i18n pass (default 中)
+applyI18n();
+</script>
+</body>
+</html>
