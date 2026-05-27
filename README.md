@@ -1,5 +1,7 @@
 # FansAI · Global Footprint Dashboard
 
+**Live demo →** https://fansai-dashboard.vercel.app/
+
 AI-native content science company · Overseas business map demo.
 
 A single-file interactive dashboard featuring:
