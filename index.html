@@ -75,9 +75,8 @@
     box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 8px 32px rgba(0,0,0,.3),0 0 40px rgba(74,142,255,.04)}
   .topbar::before{content:"";position:absolute;top:0;left:20%;right:20%;height:1px;
     background:linear-gradient(90deg,transparent,rgba(95,220,255,.4),transparent);pointer-events:none}
-  .logo{height:32px;width:auto;display:block;
-    mix-blend-mode:screen;   /* black bg of logo lifts away over navy panel */
-    filter:drop-shadow(0 0 14px rgba(138,125,255,.55)) drop-shadow(0 0 4px rgba(138,125,255,.4));
+  .logo{width:38px;height:38px;border-radius:50%;object-fit:cover;display:block;
+    border:1px solid rgba(232,237,247,.14);
     transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
   .logo:hover{transform:scale(.96)}
   .brand .kicker{font-size:9.5px;letter-spacing:.32em;color:var(--muted);font-weight:500}
@@ -1354,12 +1353,30 @@ document.getElementById('langTog').addEventListener('click',(e)=>{
 // ============================================================
 const globeEl=document.getElementById('globe');
 
+// ─── theme color bridge ──────────────────────────────────────────────
+// Read CSS custom properties so globe colors track the design tokens
+// instead of being hard-coded — single source of truth in :root.
+const cssVar = (name, fallback='') => {
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v || fallback;
+};
+const THEME = {
+  accent:  cssVar('--ochre', '#4a8eff'),    // primary electric blue
+  cyan:    cssVar('--sage',  '#5fdcff'),    // active markets / accent cyan
+  violet:  cssVar('--terra', '#8a7dff'),    // secondary accent
+  dim:     cssVar('--dim',   '#414c6b'),    // emerging / muted
+  land:    '#5db8d8',                       // hex polygon land color
+  atmos:   '#5fa8ff',                       // atmospheric glow
+  oceanBg: '#08101e',                       // globe sphere base
+  oceanEm: '#0a1428',                       // globe sphere emissive
+};
+
 const points=COUNTRIES.map(c=>({
   iso2:c[0],iso3:c[1],zh:c[2],en:c[3],region:c[4],lat:c[5],lng:c[6],flag:c[7],
   tier:c[8],campaigns:c[9],reach:c[10],ooh:c[11],awards:c[12],pen:c[13],top:c[14],cap:c[15],clients:c[16]
 }));
 
-function tierColor(t){return t===0?'#4a8eff':t===1?'#5fdcff':'#414c6b'}
+function tierColor(t){return t===0?THEME.accent:t===1?THEME.cyan:THEME.dim}
 
 // arcs from US + London hubs
 const hub=points.find(p=>p.iso2==='US'),lon=points.find(p=>p.iso2==='GB');
@@ -1380,13 +1397,13 @@ try{
   world = Globe()(globeEl)
     .backgroundColor('rgba(0,0,0,0)')
     .showAtmosphere(true)
-    .atmosphereColor('#5fa8ff')
+    .atmosphereColor(THEME.atmos)
     .atmosphereAltitude(0.22)
     .pointOfView({lat:40,lng:-30,altitude:2.0},0);
 
   // cinematic deep-space globe material
-  world.globeMaterial().color = new THREE.Color('#08101e');
-  world.globeMaterial().emissive = new THREE.Color('#0a1428');
+  world.globeMaterial().color = new THREE.Color(THEME.oceanBg);
+  world.globeMaterial().emissive = new THREE.Color(THEME.oceanEm);
   world.globeMaterial().emissiveIntensity = 0.3;
   world.globeMaterial().shininess = 8;
 
@@ -1433,19 +1450,20 @@ try{
       return fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson').then(r=>r.json());
     })
     .then(geo=>{
-      // hex dots with explicit MeshBasicMaterial override (Lambert + ambient
-      // light was the actual culprit: it mixed the teal-blue with directional
-      // white at glancing angles, producing the warm beige seen on screen)
+      // ⚠️ FIX: globe.gl 2.27 + hexPolygonUseDots(true) has a regression where
+      // the dots renderer falls back to an internal default warm color
+      // (~#ffffaa beige) and ignores the supplied hexPolygonColor callback.
+      // Solution: drop useDots, push margin up so the filled hex tiles read as
+      // a tight dot grid visually, but with full color authority via THEME.land.
       world.hexPolygonsData(geo.features)
         .hexPolygonResolution(3)
-        .hexPolygonMargin(0.28)
-        .hexPolygonUseDots(true)
-        .hexPolygonAltitude(0.005)
-        .hexPolygonColor(()=>'#5db8d8');
-      // neutralize / cool-shift scene lighting so the dots render true to their color
+        .hexPolygonMargin(0.55)
+        .hexPolygonAltitude(0.006)
+        .hexPolygonColor(()=>THEME.land);
+      // cool-shift the default scene lighting so colors render true
       world.scene().traverse(obj=>{
-        if(obj.isDirectionalLight){ obj.intensity=0.15; obj.color.set('#aac8ff'); }
-        if(obj.isAmbientLight){ obj.intensity=0.9; obj.color.set('#7d9fd0'); }
+        if(obj.isDirectionalLight){ obj.intensity=0.35; obj.color.set('#c0d4f0'); }
+        if(obj.isAmbientLight){ obj.intensity=0.75; obj.color.set('#8aa8d8'); }
       });
     })
     .catch(()=>{ /* arcs+points still render */ });
