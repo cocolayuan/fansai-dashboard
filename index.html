@@ -190,6 +190,9 @@
   .crow .thumb img{width:100%;height:100%;object-fit:cover;display:block;
     transition:transform .4s cubic-bezier(.22,1,.36,1)}
   .crow:hover .thumb img{transform:scale(1.06)}
+  /* app-board logo cards — contain (not crop) so wordmarks stay legible */
+  .crow .thumb.thumb-logo img{object-fit:contain;padding:6px;box-sizing:border-box}
+  .crow:hover .thumb.thumb-logo img{transform:scale(1.04)}
   /* fallback when image missing or fails to load */
   .crow .thumb.thumb-fallback::after{content:"";position:absolute;inset:8px;border:1px dashed rgba(232,237,247,.08);border-radius:6px}
   .crow .thumb.thumb-fallback::before{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;
@@ -656,8 +659,8 @@ const COUNTRIES = [
 const CASES={
   // FansAI core products (App Board · 2 items)
   app:[
-    {n:'ROTO.TV · Open-World Interactive Video',cli:'2025.Q4 · FansAI Core Product',hot:9.7,region:'全球',region_en:'Global',img:'./roto.jpg',tags:[],m1:'Open-world AIGC',m2:'Interactive Cinema'},
-    {n:'Marketrack · Content Science',cli:'2026.Q2 · Core Strategy',hot:9.4,region:'全球',region_en:'Global',img:'./marketrack.jpg',tags:[],m1:'Category-Defining',m2:'AI-Native Operations'},
+    {n:'ROTO.TV · Open-World Interactive Video',cli:'2025.Q4 · FansAI Core Product',hot:9.7,region:'全球',region_en:'Global',img:'./roto-logo.jpg',imgBg:'#000',tags:[],m1:'Open-world AIGC',m2:'Interactive Cinema'},
+    {n:'Marketrack · Content Science',cli:'2026.Q2 · Core Strategy',hot:9.4,region:'全球',region_en:'Global',img:'./marketrack-logo.jpg',imgBg:'#fff',tags:[],m1:'Category-Defining',m2:'AI-Native Operations'},
   ],
   trending:[
     {n:'TCL Winter Olympics · Brand Film',cli:'TCL × Olympic Global Partner',hot:9.8,region:'全球 / 欧洲',region_en:'Global / Europe',img:'./tcl-winter.jpg',tags:[],m1:'Strategic Global',m2:'Cinema-Grade'},
@@ -1095,7 +1098,7 @@ function renderCasesView(){
   const list=`<div class="list">${arr.map((c,i)=>{
     const region = LANG==='zh' ? c.region : (c.region_en || c.region);
     const thumb = c.img
-      ? `<div class="thumb"><img src="${c.img}" alt="" loading="lazy" onerror="this.parentElement.classList.add('thumb-fallback');this.remove();"/></div>`
+      ? `<div class="thumb${c.imgBg?' thumb-logo':''}"${c.imgBg?` style="background:${c.imgBg}"`:''}><img src="${c.img}" alt="" loading="lazy" onerror="this.parentElement.classList.add('thumb-fallback');this.remove();"/></div>`
       : `<div class="thumb thumb-fallback"></div>`;
     return `<div class="crow ${i===0?'on':''}">
       <div class="rk-chip">${String(i+1).padStart(2,'0')}</div>
