@@ -150,6 +150,15 @@
   .panel::before{content:"";position:absolute;top:0;left:15%;right:15%;height:1px;
     background:linear-gradient(90deg,transparent,rgba(95,220,255,.4),transparent);
     pointer-events:none;z-index:1}
+  /* upper-right light-beam overlay — sits ABOVE all content for the
+     cinematic key-light feel. Excluded on .center to keep globe unobstructed. */
+  .panel:not(.center)::after{
+    content:"";position:absolute;top:0;right:0;
+    width:62%;aspect-ratio:568 / 220;
+    background:url('./light.png') no-repeat top right / cover;
+    pointer-events:none;z-index:50;opacity:.58;mix-blend-mode:screen;
+    border-top-right-radius:20px;overflow:hidden
+  }
 
   .ph{padding:16px 18px 12px;border-bottom:1px solid var(--line);position:relative}
   .ph .ki{font-size:9.5px;letter-spacing:.3em;color:var(--muted);font-weight:500;
@@ -594,9 +603,9 @@ const I18N = {
     lCases:{kicker:'内容排行榜',title:'内容排行榜',sub:'— trending board',
       hint:'支持点击切换，10 秒自动轮播', heatLb:'热度值'},
     centerKicker:'全球市场足迹  ·  2024 — 2026', centerTitle:'世界地图总览', centerSub:'— 拖动定位市场',
-    kpis:{markets:'覆盖市场',camp:'营销战役',awards:'获奖'},
+    kpis:{markets:'覆盖市场',camp:'营销活动',awards:'获奖'},
     tickerLead:'渲染中',
-    cc:{camp:'战役',reach:'触达',ooh:'OOH 投放',aw:'获奖',cli:'活跃客户',pen:'市场渗透'},
+    cc:{camp:'活动',reach:'触达',ooh:'OOH 投放',aw:'获奖',cli:'活跃客户',pen:'市场渗透'},
     legend:{title:'市场分级',strat:'核心',act:'活跃',emerg:'拓展'},
     sigKicker:'用户评价', sigTitle:'客户口碑', sigSub:'— client reviews',
     honKicker:'荣誉', honTitle:'奖项 · 媒体', honSub:'— honors',
@@ -1129,7 +1138,7 @@ function renderMarketsView(){
     <div class="mkt-row ${p.iso2===sigContext?'on':''}" data-iso="${p.iso2}">
       <span class="mf">${p.flag}</span>
       <div class="mn"><b>${LANG==='zh'?p.zh:p.en}</b><small>${p.region} · ${tierLb[p.tier]}</small></div>
-      <div class="mv"><b>${p.campaigns}</b>${LANG==='zh'?'战役':'campaigns'}</div>
+      <div class="mv"><b>${p.campaigns}</b>${LANG==='zh'?'活动':'campaigns'}</div>
       <span class="dot t${p.tier}"></span>
     </div>`).join('')}</div>`;
   leftPanel.innerHTML = panelShell(LANG==='zh'?'全部市场':'ALL MARKETS', LANG==='zh'?'市场覆盖':'Markets', LANG==='zh'?'— 按战役量排序':'— sorted by campaign volume', list, String(points.length).padStart(2,'0'));
