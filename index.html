@@ -150,15 +150,16 @@
   .panel::before{content:"";position:absolute;top:0;left:15%;right:15%;height:1px;
     background:linear-gradient(90deg,transparent,rgba(95,220,255,.4),transparent);
     pointer-events:none;z-index:1}
-  /* upper-right light-beam overlay — sits ABOVE all content for the
-     cinematic key-light feel. Excluded on .center to keep globe unobstructed. */
-  .panel:not(.center)::after{
+  /* upper-right cinematic key-light overlay — now applied to ALL panels
+     including .center (globe). z-index:50 + pointer-events:none keeps
+     it visually on top but click-through. */
+  .panel::after{
     content:"";position:absolute;top:0;right:0;
     width:62%;aspect-ratio:568 / 220;
     background:url('./light.png') no-repeat top right / cover;
-    pointer-events:none;z-index:50;opacity:.58;mix-blend-mode:screen;
-    border-top-right-radius:20px;overflow:hidden
+    pointer-events:none;z-index:50;opacity:.75;mix-blend-mode:screen
   }
+  .panel.center::after{width:70%;opacity:.68}  /* slightly larger spread, slightly softer over the globe scene */
 
   .ph{padding:16px 18px 12px;border-bottom:1px solid var(--line);position:relative}
   .ph .ki{font-size:9.5px;letter-spacing:.3em;color:var(--muted);font-weight:500;
@@ -330,39 +331,48 @@
     transition:max-height .3s cubic-bezier(.22,1,.36,1),opacity .2s,transform .25s;
     opacity:0;pointer-events:none;transform:translateX(-8px)}
   .ccard.open .menu{max-height:480px;overflow:auto;opacity:1;pointer-events:auto;transform:translateX(0)}
-  /* dropdown menu — premium cinematic style matching ccard */
-  .cdd .menu-head{padding:14px 16px 12px;border-bottom:1px solid var(--line);
-    display:flex;justify-content:space-between;align-items:center;
-    background:linear-gradient(180deg,rgba(74,142,255,.04),transparent)}
-  .cdd .menu-head .mh-t{font-size:10px;letter-spacing:.28em;color:var(--bone);
-    font-weight:600;font-family:'Inter'}
-  .cdd .menu-head .mh-s{font-size:9.5px;letter-spacing:.16em;color:var(--ochre);
-    font-family:'JetBrains Mono'}
-  .cdd .grp{font-size:9px;letter-spacing:.3em;color:var(--muted);padding:14px 16px 6px 16px;
-    font-family:'JetBrains Mono';font-weight:500;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-  .cdd .grp::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+  /* dropdown menu — selectors target actual DOM: .ccard > .menu > * */
+  .ccard .menu .search-wrap{position:sticky;top:0;z-index:2;
+    background:rgba(12,19,34,.97);padding:10px 12px;border-bottom:1px solid var(--line)}
+  .ccard .menu .search-in{width:100%;padding:9px 12px 9px 32px;background:rgba(5,7,13,.6);
+    border:1px solid var(--line-2);border-radius:9px;color:var(--bone);font-size:12.5px;
+    outline:none;font-family:inherit;letter-spacing:.005em;transition:all .2s}
+  .ccard .menu .search-in::placeholder{color:var(--dim)}
+  .ccard .menu .search-in:focus{border-color:var(--ochre);background:rgba(5,7,13,.85);
+    box-shadow:0 0 0 3px rgba(74,142,255,.1)}
+  .ccard .menu .search-ic{position:absolute;left:22px;top:50%;transform:translateY(-50%);
+    color:var(--muted);pointer-events:none}
+  .ccard .menu .grp{font-size:9px;letter-spacing:.3em;color:var(--muted);
+    padding:10px 16px 6px;font-family:'JetBrains Mono';font-weight:500;text-transform:uppercase;
+    display:flex;align-items:center;gap:8px}
+  .ccard .menu .grp:first-of-type{padding-top:14px}
+  .ccard .menu .grp::after{content:"";flex:1;height:1px;
+    background:linear-gradient(90deg,var(--line),transparent)}
   /* card-like list items */
-  .cdd .opt{display:flex;align-items:center;gap:11px;padding:9px 12px;font-size:12.5px;
+  .ccard .menu .opt{display:flex;align-items:center;gap:11px;padding:9px 12px;font-size:12.5px;
     cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1);color:var(--bone);
     margin:3px 10px;border-radius:10px;border:1px solid transparent;
     background:linear-gradient(180deg,rgba(22,32,54,.4),rgba(12,18,32,.5))}
-  .cdd .opt:hover{background:linear-gradient(180deg,rgba(30,44,72,.7),rgba(18,28,48,.75));
+  .ccard .menu .opt:hover{background:linear-gradient(180deg,rgba(30,44,72,.7),rgba(18,28,48,.75));
     border-color:var(--line-2);transform:translateX(3px)}
-  .cdd .opt.on{background:linear-gradient(180deg,rgba(74,142,255,.18),rgba(74,142,255,.08));
+  .ccard .menu .opt.on{background:linear-gradient(180deg,rgba(74,142,255,.18),rgba(74,142,255,.08));
     border-color:rgba(74,142,255,.5);box-shadow:0 0 0 1px rgba(74,142,255,.15) inset,
     0 0 16px rgba(74,142,255,.18)}
-  .cdd .opt .of{font-size:18px;width:28px;height:28px;display:grid;place-items:center;
+  .ccard .menu .opt .of{font-size:18px;width:28px;height:28px;display:grid;place-items:center;
     background:rgba(5,7,13,.65);border:1px solid var(--line);border-radius:7px;
     filter:grayscale(.25);flex-shrink:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
-  .cdd .opt .on-name{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;line-height:1.25}
-  .cdd .opt .on-name b{font-size:12.5px;font-weight:600;letter-spacing:-.005em;color:var(--bone)}
-  .cdd .opt .on-name small{font-size:10px;color:var(--muted);letter-spacing:.02em}
-  .cdd .opt .oz{color:var(--muted);font-size:10.5px;font-family:'JetBrains Mono';flex-shrink:0;
+  /* inline name layout — en bold + zh small inline with gap */
+  .ccard .menu .opt .ol{flex:1;min-width:0;display:flex;align-items:baseline;gap:7px;overflow:hidden}
+  .ccard .menu .opt .ol b{font-weight:600;color:var(--bone);font-size:12.5px;
+    white-space:nowrap;letter-spacing:-.005em}
+  .ccard .menu .opt .ol small{font-size:11px;color:var(--muted);white-space:nowrap}
+  .ccard .menu .opt .oz{color:var(--muted);font-size:10.5px;font-family:'JetBrains Mono';flex-shrink:0;
     padding:3px 8px;border:1px solid var(--line);border-radius:99px;background:rgba(5,7,13,.4)}
-  .cdd .opt.on .oz{color:var(--ochre);border-color:rgba(74,142,255,.4);background:rgba(74,142,255,.08)}
-  .cdd .opt .ot{width:6px;height:6px;border-radius:50%;background:var(--ochre);box-shadow:0 0 8px var(--ochre);flex-shrink:0}
-  .cdd .opt .ot.t1{background:var(--sage);box-shadow:0 0 8px rgba(95,220,255,.6)}
-  .cdd .opt .ot.t2{background:var(--dim);box-shadow:none}
+  .ccard .menu .opt.on .oz{color:var(--ochre);border-color:rgba(74,142,255,.4);background:rgba(74,142,255,.08)}
+  .ccard .menu .opt .ot{width:6px;height:6px;border-radius:50%;background:var(--ochre);box-shadow:0 0 8px var(--ochre);flex-shrink:0}
+  .ccard .menu .opt .ot.t1{background:var(--cyan,#5fdcff);box-shadow:0 0 8px rgba(95,220,255,.6)}
+  .ccard .menu .opt .ot.t2{background:var(--dim);box-shadow:none}
+  .ccard .menu #cddList{padding-bottom:6px}
 
   .sig{background:rgba(5,7,13,.4);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
     transition:all .25s cubic-bezier(.34,1.56,.64,1);cursor:default}
@@ -528,9 +538,9 @@
           </button>
         </div>
         <div class="menu" id="cddMenu">
-          <div class="menu-head">
-            <div class="mh-t">SELECT MARKET</div>
-            <div class="mh-s" id="mhCount">10 markets</div>
+          <div class="search-wrap">
+            <svg class="search-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input class="search-in" id="cddSearch" placeholder="筛选国家或地区..." />
           </div>
           <div id="cddList"></div>
         </div>
@@ -1394,15 +1404,15 @@ function applyI18n(){
     rBot.querySelector('.ki span:first-child').textContent=L.honKicker;
     rBot.querySelector('.ti').innerHTML=`${L.honTitle} <em>${L.honSub}</em>`;
   }
-  // dropdown search placeholder (menu lives inside .ccard now)
+  // KPI markets count + dropdown search placeholder
   document.getElementById('kpiMkt').textContent=points.length;
-  // search input removed
+  const _si=document.getElementById('cddSearch'); if(_si) _si.placeholder=L.cdd.searchPh;
   // rtabs removed — no-op
   // footer
   // footer simplified to single centered timestamp
   if(typeof tickFooterTs === 'function') tickFooterTs();
   // re-render dynamic
-  buildCddList();
+  buildCddList(document.getElementById('cddSearch')?.value || '');
   renderSignals();
 }
 
@@ -1603,40 +1613,46 @@ const ccardEl=document.getElementById('ccard'),
       cddList=document.getElementById('cddList');
 document.getElementById('kpiMkt').textContent=points.length;
 
-function buildCddList(){
+function buildCddList(filter=''){
   const L=t();
+  const f = filter.trim().toLowerCase();
   const tierOrder=[[0,L.cdd.tiers[0]],[1,L.cdd.tiers[1]],[2,L.cdd.tiers[2]]];
   let html='';
   tierOrder.forEach(([tier,lb])=>{
-    const arr=points.filter(p=>p.tier===tier);
+    const arr=points.filter(p=>p.tier===tier && (
+      !f || p.en.toLowerCase().includes(f) || p.zh.includes(f) ||
+      p.iso2.toLowerCase().includes(f) || p.iso3.toLowerCase().includes(f) ||
+      p.region.toLowerCase().includes(f)
+    ));
     if(!arr.length)return;
     html+=`<div class="grp">${lb} · ${arr.length}</div>`;
     html+=arr.map(p=>`
       <div class="opt ${p.iso2===sigContext?'on':''}" data-iso="${p.iso2}">
         <span class="ot t${p.tier}"></span>
         <span class="of">${p.flag}</span>
-        <span class="on-name"><b>${p.en}</b><small>${p.zh}</small></span>
+        <span class="ol"><b>${p.en}</b><small>${p.zh}</small></span>
         <span class="oz">${p.campaigns}</span>
       </div>`).join('');
   });
+  if(!html) html = `<div style="padding:24px;text-align:center;color:var(--muted);font-size:12px">${LANG==='zh'?'无匹配':'No match'}</div>`;
   cddList.innerHTML=html;
   cddList.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{
     const p=points.find(x=>x.iso2===o.dataset.iso);
-    if(p){focusCountry(p,true);ccardEl.classList.remove('open');}
+    if(p){focusCountry(p,true);ccardEl.classList.remove('open');
+      const si=document.getElementById('cddSearch'); if(si){si.value='';buildCddList();}}
   });
-  // sync menu-head count
-  const mh=document.getElementById('mhCount');
-  if(mh){
-    const lb = LANG==='zh' ? `${points.length} 个市场` : `${points.length} markets`;
-    mh.textContent = lb;
-  }
 }
 
 cddBtn.onclick=(e)=>{
   e.stopPropagation();
   ccardEl.classList.toggle('open');
+  if(ccardEl.classList.contains('open')) setTimeout(()=>{
+    const si=document.getElementById('cddSearch'); if(si) si.focus();
+  },120);
 };
 cddMenu.addEventListener('click',e=>e.stopPropagation());
+// search filter
+document.getElementById('cddSearch').addEventListener('input',e=>buildCddList(e.target.value));
 document.addEventListener('click',(e)=>{
   if(!ccardEl.contains(e.target)) ccardEl.classList.remove('open');
 });
