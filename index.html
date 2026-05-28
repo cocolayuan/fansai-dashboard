@@ -180,23 +180,23 @@
     --ochre:#30D9FB;     /* primary — bright cyan */
     --terra:#4271FF;     /* secondary — saturated blue */
   }
-  /* sync the hardcoded rgba glow / box-shadow values inside leftPanel */
+  /* ⓘ role swap: rank-chip & toggle pill use PURPLE (#4271FF);
+     heat numbers stay bright CYAN (#30D9FB).
+     --ochre still cyan for hover/focus tints across the panel. */
   #leftPanel .crow.on{
-    border-color:#30D9FB;
-    background:rgba(48,217,251,.08);
-    box-shadow:0 0 0 1px rgba(48,217,251,.2),inset 0 1px 0 rgba(232,237,247,.04)}
+    border-color:#4271FF;
+    background:rgba(66,113,255,.1);
+    box-shadow:0 0 0 1px rgba(66,113,255,.2),inset 0 1px 0 rgba(232,237,247,.04)}
   #leftPanel .rk-chip{box-shadow:inset 0 -2px 3px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.3)}
-  #leftPanel .crow.on .rk-chip{background:#30D9FB;color:#03050a;
-    box-shadow:inset 0 -2px 3px rgba(0,0,0,.18),0 2px 8px rgba(48,217,251,.35)}
+  #leftPanel .crow.on .rk-chip{background:#4271FF;color:#fff;
+    box-shadow:inset 0 -2px 3px rgba(0,0,0,.18),0 2px 10px rgba(66,113,255,.5)}
   #leftPanel .heat{color:#30D9FB}
   #leftPanel .tag.k{color:#30D9FB;border-color:rgba(48,217,251,.4)}
   #leftPanel .tag.s{color:#4271FF;border-color:rgba(66,113,255,.4)}
-  #leftPanel .board-toggle .bt.on{background:#30D9FB;color:#03050a;
-    box-shadow:0 2px 10px rgba(48,217,251,.45),inset 0 1px 0 rgba(255,255,255,.25)}
+  #leftPanel .board-toggle .bt.on{background:#4271FF;color:#fff;
+    box-shadow:0 2px 10px rgba(66,113,255,.5),inset 0 1px 0 rgba(255,255,255,.25)}
   #leftPanel .thumb.thumb-fallback::before{
     background:linear-gradient(135deg,transparent 40%,rgba(48,217,251,.3) 50%,transparent 60%)}
-  #leftPanel .thumb::after,
-  #leftPanel .thumb::before{}  /* keep gradient strokes neutral */
 
   /* board toggle (content / app) — top-right of left panel header */
   .board-toggle{position:absolute;top:18px;right:18px;display:flex;
@@ -316,8 +316,8 @@
     letter-spacing:.05em}
   .cc-bar .lb b{color:var(--bone);font-weight:600;font-family:'JetBrains Mono'}
   .bar{height:4px;background:rgba(5,7,13,.6);border-radius:99px;overflow:hidden}
-  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ochre),var(--terra));
-    border-radius:99px;transition:width .8s cubic-bezier(.22,1,.36,1);box-shadow:0 0 8px rgba(74,142,255,.4)}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,#4271FF 0%,#77FDFF 100%);
+    border-radius:99px;transition:width .8s cubic-bezier(.22,1,.36,1);box-shadow:0 0 10px rgba(119,253,255,.35)}
 
   .legend{position:absolute;right:18px;bottom:18px;z-index:5;display:flex;flex-direction:column;gap:7px;
     background:rgba(12,19,34,.75);backdrop-filter:blur(14px);padding:12px 14px;border-radius:12px;
