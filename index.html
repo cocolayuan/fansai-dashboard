@@ -36,6 +36,13 @@
     --bloom:rgba(74,142,255,.18);    /* ambient blue bloom */
     --bloom-2:rgba(138,125,255,.14); /* violet bloom */
     --rim:rgba(255,255,255,.08);     /* top edge highlight */
+
+    /* globe-specific tokens — single source of truth for 3D scene */
+    --globe-land:#4a8ed0;            /* land hex tiles — mid-blue, brighter than --ochre for legibility */
+    --globe-base:#08101e;            /* globe sphere base color (ocean) */
+    --globe-emissive:#0a1428;        /* globe sphere self-emission */
+    --globe-atmo:#5fa8ff;            /* atmosphere halo */
+    --cyan:#5fdcff;                  /* shared cyan accent */
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:radial-gradient(ellipse at top,#0a1428 0%,#05070d 60%);color:var(--bone);
@@ -1361,35 +1368,43 @@ const cssVar = (name, fallback='') => {
   return v || fallback;
 };
 const THEME = {
-  accent:  cssVar('--ochre', '#4a8eff'),    // primary electric blue
-  cyan:    cssVar('--sage',  '#5fdcff'),    // active markets / accent cyan
-  violet:  cssVar('--terra', '#8a7dff'),    // secondary accent
-  dim:     cssVar('--dim',   '#414c6b'),    // emerging / muted
-  land:    '#5db8d8',                       // hex polygon land color
-  atmos:   '#5fa8ff',                       // atmospheric glow
-  oceanBg: '#08101e',                       // globe sphere base
-  oceanEm: '#0a1428',                       // globe sphere emissive
+  primary: cssVar('--ochre',         '#4a8eff'),  // electric blue (primary accent)
+  cyan:    cssVar('--cyan',          '#5fdcff'),  // shared cyan
+  violet:  cssVar('--terra',         '#8a7dff'),  // secondary accent
+  dim:     cssVar('--dim',           '#414c6b'),  // muted / emerging tier
+  land:    cssVar('--globe-land',    '#4a8ed0'),  // hex polygon land
+  atmo:    cssVar('--globe-atmo',    '#5fa8ff'),  // atmosphere halo
+  base:    cssVar('--globe-base',    '#08101e'),  // globe sphere base
+  emis:    cssVar('--globe-emissive','#0a1428'),  // globe sphere emissive
 };
+// derive rgba helpers from THEME.primary for arcs / rings (THREE.js shaders honor alpha here)
+const _hex2rgb = h => { const n=parseInt(h.replace('#',''),16); return [n>>16&255,n>>8&255,n&255]; };
+const _rgb = _hex2rgb(THEME.primary);
+const RGBA_PRIMARY = (a=1) => `rgba(${_rgb[0]},${_rgb[1]},${_rgb[2]},${a})`;
+const _rgbCyan = _hex2rgb(THEME.cyan);
+const RGBA_CYAN = (a=1) => `rgba(${_rgbCyan[0]},${_rgbCyan[1]},${_rgbCyan[2]},${a})`;
+const _rgbVi = _hex2rgb(THEME.violet);
+const RGBA_VIOLET = (a=1) => `rgba(${_rgbVi[0]},${_rgbVi[1]},${_rgbVi[2]},${a})`;
 
 const points=COUNTRIES.map(c=>({
   iso2:c[0],iso3:c[1],zh:c[2],en:c[3],region:c[4],lat:c[5],lng:c[6],flag:c[7],
   tier:c[8],campaigns:c[9],reach:c[10],ooh:c[11],awards:c[12],pen:c[13],top:c[14],cap:c[15],clients:c[16]
 }));
 
-function tierColor(t){return t===0?THEME.accent:t===1?THEME.cyan:THEME.dim}
+function tierColor(t){return t===0?THEME.primary:t===1?THEME.cyan:THEME.dim}
 
 // arcs from US + London hubs
 const hub=points.find(p=>p.iso2==='US'),lon=points.find(p=>p.iso2==='GB');
 const arcs=[];
 points.filter(p=>p!==hub).forEach(p=>{
   arcs.push({startLat:hub.lat,startLng:hub.lng,endLat:p.lat,endLng:p.lng,
-    color:[p.tier===0?'rgba(74,142,255,.9)':'rgba(74,142,255,.5)','rgba(138,125,255,.15)']});
+    color:[p.tier===0?RGBA_PRIMARY(.9):RGBA_PRIMARY(.5),RGBA_VIOLET(.15)]});
 });
 ['DE','JP','SG','AE','KR','CN'].forEach(iso=>{
   const p=points.find(x=>x.iso2===iso);
   if(!p) return;
   arcs.push({startLat:lon.lat,startLng:lon.lng,endLat:p.lat,endLng:p.lng,
-    color:['rgba(95,220,255,.8)','rgba(74,90,130,.2)']});
+    color:[RGBA_CYAN(.8),RGBA_PRIMARY(.15)]});
 });
 
 let world=null;
@@ -1397,13 +1412,13 @@ try{
   world = Globe()(globeEl)
     .backgroundColor('rgba(0,0,0,0)')
     .showAtmosphere(true)
-    .atmosphereColor(THEME.atmos)
+    .atmosphereColor(THEME.atmo)
     .atmosphereAltitude(0.22)
     .pointOfView({lat:40,lng:-30,altitude:2.0},0);
 
   // cinematic deep-space globe material
-  world.globeMaterial().color = new THREE.Color(THEME.oceanBg);
-  world.globeMaterial().emissive = new THREE.Color(THEME.oceanEm);
+  world.globeMaterial().color = new THREE.Color(THEME.base);
+  world.globeMaterial().emissive = new THREE.Color(THEME.emis);
   world.globeMaterial().emissiveIntensity = 0.3;
   world.globeMaterial().shininess = 8;
 
@@ -1419,18 +1434,18 @@ try{
     .pointColor(p=>tierColor(p.tier))
     .pointAltitude(p=>p.tier===0?0.05:p.tier===1?0.025:0.01)
     .pointRadius(p=>p.tier===0?0.6:p.tier===1?0.4:0.25)
-    .pointLabel(p=>`<div style="background:rgba(12,19,34,.96);border:1px solid #4a8eff;border-radius:10px;
+    .pointLabel(p=>`<div style="background:rgba(12,19,34,.96);border:1px solid ${THEME.primary};border-radius:10px;
       padding:9px 13px;font:600 12px 'Inter';color:#e8edf7;backdrop-filter:blur(10px);
       box-shadow:0 8px 24px rgba(0,0,0,.6)">
-      ${p.flag} <b style="color:#4a8eff">${p.en}</b> <span style="color:#6b7894;font-weight:400">· ${p.zh}</span><br>
-      <span style="font-size:10px;color:#6b7894;font-weight:400;letter-spacing:.05em;font-family:Fira Code">
+      ${p.flag} <b style="color:${THEME.primary}">${p.en}</b> <span style="color:#6b7894;font-weight:400">· ${p.zh}</span><br>
+      <span style="font-size:10px;color:#6b7894;font-weight:400;letter-spacing:.05em;font-family:'JetBrains Mono'">
       ${p.campaigns} CAMPAIGNS · ${p.reach}M REACH</span></div>`)
     .onPointClick(p=>focusCountry(p,true));
 
   // rings on strategic markets
   world.ringsData(points.filter(p=>p.tier===0))
     .ringLat('lat').ringLng('lng')
-    .ringColor(()=>t=>`rgba(74,142,255,${0.7*(1-t)})`)
+    .ringColor(()=>t=>RGBA_PRIMARY(0.7*(1-t)))
     .ringMaxRadius(3.8).ringPropagationSpeed(1.8).ringRepeatPeriod(1900);
 
   // labels
