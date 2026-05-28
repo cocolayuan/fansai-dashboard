@@ -392,9 +392,12 @@
   .rev-card .pills{position:absolute;top:10px;right:10px;display:flex;gap:5px;z-index:2}
 
   /* ---------- FOOTER ---------- */
-  .footer{display:flex;align-items:center;justify-content:space-between;padding:0 16px;
+  .footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 16px;
     font-size:10px;color:var(--dim);letter-spacing:.2em;font-family:'JetBrains Mono'}
-  .footer .l,.footer .r{display:flex;gap:18px;align-items:center}
+  .footer .l,.footer .r{display:flex;gap:18px;align-items:center;min-width:0;flex-shrink:1;overflow:hidden;white-space:nowrap}
+  .footer .r{justify-content:flex-end}
+  .footer .l span,.footer .r span,.footer b{white-space:nowrap;flex-shrink:0}
+  @media (max-width:1100px){ .footer .r > span:last-child{display:none} }  /* hide email on narrow screens */
   .footer b{color:var(--muted);font-weight:500}
   .footer .sep{color:var(--line-2)}
   .footer .live-dot{width:5px;height:5px;border-radius:50%;background:var(--sage);
@@ -454,7 +457,7 @@
         <div class="ti">世界地图总览 <em>— drag to locate market</em></div>
       </div>
       <div class="kpis">
-        <div class="kpi"><div class="l">MARKETS</div><div class="v" id="cddCt">10</div><div class="d">↗ +4 YoY</div></div>
+        <div class="kpi"><div class="l">MARKETS</div><div class="v" id="kpiMkt">10</div><div class="d">↗ +4 YoY</div></div>
         <div class="kpi"><div class="l">CAMPAIGNS</div><div class="v" id="kpiCamp">147</div><div class="d">↗ +12 Q</div></div>
         <div class="kpi"><div class="l">AWARDS</div><div class="v">30<em>+</em></div><div class="d">2025 cycle</div></div>
       </div>
@@ -476,7 +479,7 @@
             <div class="iso" id="cIso">USA · N-AMERICA</div>
           </div>
           <button class="cdd-trigger" id="cddBtn" aria-label="Switch market" type="button">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
           </button>
         </div>
         <div class="menu" id="cddMenu">
@@ -1334,7 +1337,7 @@ function applyI18n(){
     rBot.querySelector('.ti').innerHTML=`${L.honTitle} <em>${L.honSub}</em>`;
   }
   // dropdown search placeholder (menu lives inside .ccard now)
-  document.getElementById('cddCt').textContent=points.length;
+  document.getElementById('kpiMkt').textContent=points.length;
   document.getElementById('cddSearch').placeholder=L.cdd.searchPh;
   // rtabs removed — no-op
   // footer
@@ -1543,7 +1546,7 @@ const ccardEl=document.getElementById('ccard'),
       cddMenu=document.getElementById('cddMenu'),
       cddList=document.getElementById('cddList'),
       cddSearch=document.getElementById('cddSearch');
-document.getElementById('cddCt').textContent=points.length;
+document.getElementById('kpiMkt').textContent=points.length;
 
 function buildCddList(filter=''){
   const f=filter.trim().toLowerCase();
