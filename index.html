@@ -1441,9 +1441,9 @@ try{
     .then(geo=>{
       world.hexPolygonsData(geo.features)
         .hexPolygonResolution(3)
-        .hexPolygonMargin(0.3)
+        .hexPolygonMargin(0.28)
         .hexPolygonUseDots(true)
-        .hexPolygonColor(()=>'rgba(232,237,247,0.22)');
+        .hexPolygonColor(()=>'rgba(120,180,255,0.55)');
     })
     .catch(()=>{ /* arcs+points still render */ });
 
