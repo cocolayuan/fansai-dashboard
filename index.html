@@ -1443,7 +1443,9 @@ try{
         .hexPolygonResolution(3)
         .hexPolygonMargin(0.28)
         .hexPolygonUseDots(true)
-        .hexPolygonColor(()=>'rgba(120,180,255,0.55)');
+        .hexPolygonAltitude(0.005)
+        // pure hex required — THREE.Color ignores rgba alpha, falls back to warm default
+        .hexPolygonColor(()=>'#5db8d8');
     })
     .catch(()=>{ /* arcs+points still render */ });
 
