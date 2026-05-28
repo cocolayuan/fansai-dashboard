@@ -131,8 +131,7 @@
   .main{display:grid;grid-template-columns:340px 1fr 360px;gap:10px;min-height:0}
   .rstack{display:flex;flex-direction:column;gap:10px;min-height:0;height:100%}
   .rpanel-top,.rpanel-bot{flex:1 1 50%;min-height:0;position:relative}
-  .dots{display:flex;justify-content:center;gap:5px;padding:8px 0 12px;border-top:1px solid var(--line);
-    background:rgba(5,7,13,.3)}
+  .dots{display:flex;justify-content:center;gap:5px;padding:6px 0 10px;background:transparent;border:none}
   .dots .d{width:5px;height:5px;border-radius:50%;background:var(--dim-2);transition:all .3s}
   .dots .d.on{background:var(--ochre);box-shadow:0 0 6px rgba(74,142,255,.6);width:18px;border-radius:99px}
   .signals{flex:1;overflow:hidden;padding:8px 10px}  /* override scroll for rotation mode */
@@ -161,6 +160,18 @@
 
   /* ---------- LEFT: cases ---------- */
   .list{flex:1;overflow:auto;padding:8px 12px 14px}
+
+  /* board toggle (content / app) — top-right of left panel header */
+  .board-toggle{position:absolute;top:18px;right:18px;display:flex;
+    background:rgba(5,7,13,.6);border:1px solid var(--line);
+    border-radius:99px;padding:3px;gap:0}
+  .board-toggle .bt{font-size:10.5px;padding:5px 12px;border-radius:99px;cursor:pointer;
+    color:var(--muted);transition:all .22s cubic-bezier(.34,1.56,.64,1);letter-spacing:.04em;
+    font-weight:500;white-space:nowrap}
+  .board-toggle .bt:hover{color:var(--bone)}
+  .board-toggle .bt.on{background:var(--ochre);color:#03050a;font-weight:600;
+    box-shadow:0 2px 10px rgba(74,142,255,.45),inset 0 1px 0 rgba(255,255,255,.25)}
+  .board-toggle .bt:active{transform:scale(.94)}
   .crow{display:flex;gap:12px;align-items:center;padding:11px;border-radius:14px;background:rgba(5,7,13,.4);
     margin-bottom:8px;cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1);
     border:1px solid transparent;position:relative}
@@ -634,6 +645,11 @@ const COUNTRIES = [
 ];
 
 const CASES={
+  // FansAI core products (App Board · 2 items)
+  app:[
+    {n:'ROTO · Open-World Interactive Video',cli:'2025.Q4 · FansAI Core Product',hot:9.7,region:'全球',region_en:'Global',img:'https://images.unsplash.com/photo-1633265486064-086b219458ec?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'Open-world AIGC',m2:'Interactive Cinema'},
+    {n:'Marketrack · Content Science',cli:'2026.Q2 · Core Strategy',hot:9.4,region:'全球',region_en:'Global',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'Category-Defining',m2:'AI-Native Operations'},
+  ],
   trending:[
     {n:'TCL Winter Olympics · Brand Film',cli:'TCL × Olympic Global Partner',hot:9.8,region:'全球 / 欧洲',region_en:'Global / Europe',img:'./tcl-winter.jpg',tags:[],m1:'Strategic Global',m2:'Cinema-Grade'},
     {n:'Momcozy × BIG HUGS · Christmas',cli:'Momcozy USA · 14-Day Advent',hot:9.6,region:'北美 / 美国',region_en:'N.America / USA',img:'./momcozy-bighugs.jpg',tags:[],m1:'2D + 3D AI Real-time',m2:'Home Alone Universe'},
@@ -644,7 +660,7 @@ const CASES={
     {n:'Satine Vitality · TVC-Grade Brand Film',cli:'SATINE / 伊利金典',hot:8.9,region:'大中华',region_en:'Greater China',img:'./satine-spring.jpg',tags:[],m1:'Full-Sequence AI',m2:'Original AI Protagonist'},
     {n:'Satine · Spring Festival Viral',cli:'SATINE / 伊利金典',hot:8.7,region:'大中华',region_en:'Greater China',img:'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'AI Score + Protagonist',m2:'New Year Campaign'},
     {n:'YOGO Robot · Brand Going Global',cli:'YOGO Robot × Overseas',hot:8.5,region:'欧洲 / 韩国',region_en:'Europe / Korea',img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'Brand Repositioning',m2:'Human-Centric Tech'},
-    {n:'Royal Kiln · Night Market Light Show',cli:'Suzhou Museum · ICH Project',hot:8.4,region:'大中华 / 亚太',region_en:'Greater China / APAC',img:'https://images.unsplash.com/photo-1545569310-66b9ac4a91d8?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'AI Projection Mapping',m2:'1st AI ICH Light Show'},
+    {n:'Royal Kiln · Night Market Light Show',cli:'Suzhou Museum · ICH Project',hot:8.4,region:'大中华 / 亚太',region_en:'Greater China / APAC',img:'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'AI Projection Mapping',m2:'1st AI ICH Light Show'},
     {n:'HLA · Seasonal Launch Campaign',cli:'HLA 海澜之家',hot:8.2,region:'大中华',region_en:'Greater China',img:'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'Bespoke AI Models',m2:'Precision Logo Rendering'},
     {n:'MAOGEPING · Ski Season',cli:'MAOGEPING / 毛戈平',hot:8.0,region:'大中华',region_en:'Greater China',img:'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'Narrative Comedy',m2:'Full-Sequence AI'},
   ],
@@ -1033,6 +1049,7 @@ const CAPABILITIES=[
   {n:'AI Empowerment Consulting',n_zh:'AI 赋能咨询',tag:'CONSULT · OPS',d:'Helping brands establish proprietary AI-driven production workflows.',d_zh:'协助品牌建立专属 AI 驱动的内容生产工作流。'},
 ];
 let currentView='overview';
+let curBoard='content'; // 'content' | 'app'
 const leftPanel=document.getElementById('leftPanel');
 
 function renderLeftView(){
@@ -1051,8 +1068,20 @@ function panelShell(kicker,title,sub,body,extra=''){
 
 function renderCasesView(){
   const L=t();
-  const arr=CASES.trending;
-  const hint=`<div style="padding:10px 18px 4px;font-size:10.5px;color:var(--dim);letter-spacing:.04em">${L.lCases.hint}</div>`;
+  const arr = curBoard==='app' ? CASES.app : CASES.trending;
+  const toggleLb = LANG==='zh' ? {content:'内容榜',app:'App 榜'} : {content:'Content',app:'App'};
+  // header with toggle on right
+  const head = `<div class="ph" style="position:relative">
+    <div class="ki"><span>${L.lCases.kicker}</span><span class="ct">${String(arr.length).padStart(2,'0')}</span></div>
+    <div class="ti">${L.lCases.title} <em>${L.lCases.sub}</em></div>
+    <div class="board-toggle">
+      <span class="bt ${curBoard==='content'?'on':''}" data-b="content">${toggleLb.content}</span>
+      <span class="bt ${curBoard==='app'?'on':''}" data-b="app">${toggleLb.app}</span>
+    </div>
+  </div>`;
+  const hint = curBoard==='content'
+    ? `<div style="padding:10px 18px 4px;font-size:10.5px;color:var(--dim);letter-spacing:.04em">${L.lCases.hint}</div>`
+    : `<div style="padding:10px 18px 4px;font-size:10.5px;color:var(--dim);letter-spacing:.04em">${LANG==='zh'?'FansAI 自有产品矩阵':'FansAI proprietary product matrix'}</div>`;
   const list=`<div class="list">${arr.map((c,i)=>{
     const region = LANG==='zh' ? c.region : (c.region_en || c.region);
     const thumb = c.img
@@ -1068,10 +1097,14 @@ function renderCasesView(){
       </div>
     </div>`;
   }).join('')}</div>`;
-  leftPanel.innerHTML = panelShell(L.lCases.kicker, L.lCases.title, L.lCases.sub, hint+list, String(arr.length).padStart(2,'0'));
+  leftPanel.innerHTML = head + hint + list;
   leftPanel.querySelectorAll('.crow').forEach(r=>r.onclick=()=>{
     leftPanel.querySelectorAll('.crow').forEach(x=>x.classList.remove('on'));
     r.classList.add('on');
+  });
+  leftPanel.querySelectorAll('.board-toggle .bt').forEach(b=>b.onclick=()=>{
+    curBoard = b.dataset.b;
+    renderCasesView();
   });
 }
 
