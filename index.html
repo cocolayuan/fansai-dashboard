@@ -318,29 +318,38 @@
     transition:max-height .3s cubic-bezier(.22,1,.36,1),opacity .2s,transform .25s;
     opacity:0;pointer-events:none;transform:translateX(-8px)}
   .ccard.open .menu{max-height:480px;overflow:auto;opacity:1;pointer-events:auto;transform:translateX(0)}
-  .cdd .search-in{width:100%;padding:11px 12px 11px 38px;background:rgba(5,7,13,.6);
-    border:none;border-bottom:1px solid var(--line);color:var(--bone);font-size:12.5px;
-    outline:none;font-family:inherit;letter-spacing:.01em}
-  .cdd .search-in::placeholder{color:var(--dim)}
-  .cdd .search-in:focus{background:rgba(5,7,13,.85);border-bottom-color:var(--ochre)}
-  .cdd .search-ic{position:absolute;left:14px;top:14px;color:var(--muted);pointer-events:none}
-  .cdd .grp{font-size:9px;letter-spacing:.26em;color:var(--ochre);padding:12px 14px 6px;
-    font-family:'JetBrains Mono';font-weight:500;text-transform:uppercase}
-  /* card-like list items (match parent ccard's .cc panel rhythm) */
-  .cdd .opt{display:flex;align-items:center;gap:11px;padding:10px 12px;font-size:12.5px;
+  /* dropdown menu — premium cinematic style matching ccard */
+  .cdd .menu-head{padding:14px 16px 12px;border-bottom:1px solid var(--line);
+    display:flex;justify-content:space-between;align-items:center;
+    background:linear-gradient(180deg,rgba(74,142,255,.04),transparent)}
+  .cdd .menu-head .mh-t{font-size:10px;letter-spacing:.28em;color:var(--bone);
+    font-weight:600;font-family:'Inter'}
+  .cdd .menu-head .mh-s{font-size:9.5px;letter-spacing:.16em;color:var(--ochre);
+    font-family:'JetBrains Mono'}
+  .cdd .grp{font-size:9px;letter-spacing:.3em;color:var(--muted);padding:14px 16px 6px 16px;
+    font-family:'JetBrains Mono';font-weight:500;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+  .cdd .grp::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+  /* card-like list items */
+  .cdd .opt{display:flex;align-items:center;gap:11px;padding:9px 12px;font-size:12.5px;
     cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1);color:var(--bone);
-    margin:2px 8px;border-radius:10px;border:1px solid transparent;background:rgba(5,7,13,.35)}
-  .cdd .opt:hover{background:rgba(23,34,58,.7);border-color:var(--line-2);transform:translateX(2px)}
-  .cdd .opt.on{background:rgba(74,142,255,.1);border-color:rgba(74,142,255,.35);
-    box-shadow:0 0 0 1px rgba(74,142,255,.1) inset}
-  .cdd .opt .of{font-size:18px;width:26px;height:26px;display:grid;place-items:center;
-    background:rgba(5,7,13,.6);border:1px solid var(--line);border-radius:6px;
-    filter:grayscale(.3);flex-shrink:0}
-  .cdd .opt .oz{color:var(--muted);font-size:10.5px;margin-left:auto;
-    font-family:'JetBrains Mono';flex-shrink:0}
-  .cdd .opt.on .oz{color:var(--ochre)}
-  .cdd .opt .ot{width:6px;height:6px;border-radius:50%;background:var(--ochre);box-shadow:0 0 6px var(--ochre);flex-shrink:0}
-  .cdd .opt .ot.t1{background:var(--sage);box-shadow:0 0 6px rgba(95,220,255,.5)}
+    margin:3px 10px;border-radius:10px;border:1px solid transparent;
+    background:linear-gradient(180deg,rgba(22,32,54,.4),rgba(12,18,32,.5))}
+  .cdd .opt:hover{background:linear-gradient(180deg,rgba(30,44,72,.7),rgba(18,28,48,.75));
+    border-color:var(--line-2);transform:translateX(3px)}
+  .cdd .opt.on{background:linear-gradient(180deg,rgba(74,142,255,.18),rgba(74,142,255,.08));
+    border-color:rgba(74,142,255,.5);box-shadow:0 0 0 1px rgba(74,142,255,.15) inset,
+    0 0 16px rgba(74,142,255,.18)}
+  .cdd .opt .of{font-size:18px;width:28px;height:28px;display:grid;place-items:center;
+    background:rgba(5,7,13,.65);border:1px solid var(--line);border-radius:7px;
+    filter:grayscale(.25);flex-shrink:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+  .cdd .opt .on-name{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;line-height:1.25}
+  .cdd .opt .on-name b{font-size:12.5px;font-weight:600;letter-spacing:-.005em;color:var(--bone)}
+  .cdd .opt .on-name small{font-size:10px;color:var(--muted);letter-spacing:.02em}
+  .cdd .opt .oz{color:var(--muted);font-size:10.5px;font-family:'JetBrains Mono';flex-shrink:0;
+    padding:3px 8px;border:1px solid var(--line);border-radius:99px;background:rgba(5,7,13,.4)}
+  .cdd .opt.on .oz{color:var(--ochre);border-color:rgba(74,142,255,.4);background:rgba(74,142,255,.08)}
+  .cdd .opt .ot{width:6px;height:6px;border-radius:50%;background:var(--ochre);box-shadow:0 0 8px var(--ochre);flex-shrink:0}
+  .cdd .opt .ot.t1{background:var(--sage);box-shadow:0 0 8px rgba(95,220,255,.6)}
   .cdd .opt .ot.t2{background:var(--dim);box-shadow:none}
 
   .sig{background:rgba(5,7,13,.4);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
@@ -507,9 +516,9 @@
           </button>
         </div>
         <div class="menu" id="cddMenu">
-          <div style="position:relative">
-            <svg class="search-ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-            <input class="search-in" id="cddSearch" placeholder="筛选国家或地区..." />
+          <div class="menu-head">
+            <div class="mh-t">SELECT MARKET</div>
+            <div class="mh-s" id="mhCount">10 markets</div>
           </div>
           <div id="cddList"></div>
         </div>
@@ -647,8 +656,8 @@ const COUNTRIES = [
 const CASES={
   // FansAI core products (App Board · 2 items)
   app:[
-    {n:'ROTO · Open-World Interactive Video',cli:'2025.Q4 · FansAI Core Product',hot:9.7,region:'全球',region_en:'Global',img:'https://images.unsplash.com/photo-1633265486064-086b219458ec?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'Open-world AIGC',m2:'Interactive Cinema'},
-    {n:'Marketrack · Content Science',cli:'2026.Q2 · Core Strategy',hot:9.4,region:'全球',region_en:'Global',img:'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'Category-Defining',m2:'AI-Native Operations'},
+    {n:'ROTO.TV · Open-World Interactive Video',cli:'2025.Q4 · FansAI Core Product',hot:9.7,region:'全球',region_en:'Global',img:'./roto.jpg',tags:[],m1:'Open-world AIGC',m2:'Interactive Cinema'},
+    {n:'Marketrack · Content Science',cli:'2026.Q2 · Core Strategy',hot:9.4,region:'全球',region_en:'Global',img:'./marketrack.jpg',tags:[],m1:'Category-Defining',m2:'AI-Native Operations'},
   ],
   trending:[
     {n:'TCL Winter Olympics · Brand Film',cli:'TCL × Olympic Global Partner',hot:9.8,region:'全球 / 欧洲',region_en:'Global / Europe',img:'./tcl-winter.jpg',tags:[],m1:'Strategic Global',m2:'Cinema-Grade'},
@@ -1071,8 +1080,9 @@ function renderCasesView(){
   const arr = curBoard==='app' ? CASES.app : CASES.trending;
   const toggleLb = LANG==='zh' ? {content:'内容榜',app:'App 榜'} : {content:'Content',app:'App'};
   // header with toggle on right
+  // count hidden — board-toggle sits in the right slot, ct would collide
   const head = `<div class="ph" style="position:relative">
-    <div class="ki"><span>${L.lCases.kicker}</span><span class="ct">${String(arr.length).padStart(2,'0')}</span></div>
+    <div class="ki"><span>${L.lCases.kicker}</span></div>
     <div class="ti">${L.lCases.title} <em>${L.lCases.sub}</em></div>
     <div class="board-toggle">
       <span class="bt ${curBoard==='content'?'on':''}" data-b="content">${toggleLb.content}</span>
@@ -1374,13 +1384,13 @@ function applyI18n(){
   }
   // dropdown search placeholder (menu lives inside .ccard now)
   document.getElementById('kpiMkt').textContent=points.length;
-  document.getElementById('cddSearch').placeholder=L.cdd.searchPh;
+  // search input removed
   // rtabs removed — no-op
   // footer
   // footer simplified to single centered timestamp
   if(typeof tickFooterTs === 'function') tickFooterTs();
   // re-render dynamic
-  buildCddList(document.getElementById('cddSearch').value);
+  buildCddList();
   renderSignals();
 }
 
@@ -1578,46 +1588,42 @@ function focusCountry(p,fly=false){
 const ccardEl=document.getElementById('ccard'),
       cddBtn=document.getElementById('cddBtn'),
       cddMenu=document.getElementById('cddMenu'),
-      cddList=document.getElementById('cddList'),
-      cddSearch=document.getElementById('cddSearch');
+      cddList=document.getElementById('cddList');
 document.getElementById('kpiMkt').textContent=points.length;
 
-function buildCddList(filter=''){
-  const f=filter.trim().toLowerCase();
+function buildCddList(){
   const L=t();
   const tierOrder=[[0,L.cdd.tiers[0]],[1,L.cdd.tiers[1]],[2,L.cdd.tiers[2]]];
   let html='';
-  tierOrder.forEach(([t,lb])=>{
-    const arr=points.filter(p=>p.tier===t && (
-      !f || p.en.toLowerCase().includes(f) || p.zh.includes(f) ||
-      p.iso2.toLowerCase().includes(f) || p.iso3.toLowerCase().includes(f) ||
-      p.region.toLowerCase().includes(f)
-    ));
+  tierOrder.forEach(([tier,lb])=>{
+    const arr=points.filter(p=>p.tier===tier);
     if(!arr.length)return;
     html+=`<div class="grp">${lb} · ${arr.length}</div>`;
     html+=arr.map(p=>`
       <div class="opt ${p.iso2===sigContext?'on':''}" data-iso="${p.iso2}">
         <span class="ot t${p.tier}"></span>
         <span class="of">${p.flag}</span>
-        <span><b style="font-weight:600">${p.en}</b> <span style="color:var(--muted);font-size:11px">· ${p.zh}</span></span>
+        <span class="on-name"><b>${p.en}</b><small>${p.zh}</small></span>
         <span class="oz">${p.campaigns}</span>
       </div>`).join('');
   });
-  if(!html)html=`<div style="padding:20px;text-align:center;color:var(--muted);font-size:12px">No match</div>`;
   cddList.innerHTML=html;
   cddList.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{
     const p=points.find(x=>x.iso2===o.dataset.iso);
-    if(p){focusCountry(p,true);ccardEl.classList.remove('open');cddSearch.value='';buildCddList();}
+    if(p){focusCountry(p,true);ccardEl.classList.remove('open');}
   });
+  // sync menu-head count
+  const mh=document.getElementById('mhCount');
+  if(mh){
+    const lb = LANG==='zh' ? `${points.length} 个市场` : `${points.length} markets`;
+    mh.textContent = lb;
+  }
 }
-buildCddList();
 
 cddBtn.onclick=(e)=>{
   e.stopPropagation();
   ccardEl.classList.toggle('open');
-  if(ccardEl.classList.contains('open'))setTimeout(()=>cddSearch.focus(),100);
 };
-cddSearch.oninput=()=>buildCddList(cddSearch.value);
 cddMenu.addEventListener('click',e=>e.stopPropagation());
 document.addEventListener('click',(e)=>{
   if(!ccardEl.contains(e.target)) ccardEl.classList.remove('open');
