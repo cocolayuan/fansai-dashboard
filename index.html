@@ -174,10 +174,14 @@
     transition:background .25s}
   .crow.on .rk-chip{background:var(--ochre)}
   .crow:nth-child(n+4) .rk-chip{background:#1a2440;color:var(--bone-d);box-shadow:inset 0 -1px 2px rgba(0,0,0,.2)}
-  .crow .thumb{width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,var(--panel-2),var(--panel-3));
-    border:1px solid var(--line);flex-shrink:0;position:relative;overflow:hidden}
-  .crow .thumb::after{content:"";position:absolute;inset:8px;border:1px dashed rgba(232,237,247,.08);border-radius:6px}
-  .crow .thumb::before{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;
+  .crow .thumb{width:64px;height:64px;border-radius:10px;flex-shrink:0;position:relative;overflow:hidden;
+    border:1px solid var(--line);background:linear-gradient(135deg,var(--panel-2),var(--panel-3))}
+  .crow .thumb img{width:100%;height:100%;object-fit:cover;display:block;
+    transition:transform .4s cubic-bezier(.22,1,.36,1)}
+  .crow:hover .thumb img{transform:scale(1.06)}
+  /* fallback when image missing or fails to load */
+  .crow .thumb.thumb-fallback::after{content:"";position:absolute;inset:8px;border:1px dashed rgba(232,237,247,.08);border-radius:6px}
+  .crow .thumb.thumb-fallback::before{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;
     transform:translate(-50%,-50%);
     background:linear-gradient(135deg,transparent 40%,rgba(74,142,255,.25) 50%,transparent 60%);
     border-radius:50%}
@@ -292,27 +296,39 @@
   .ccard .cdd-trigger:active{transform:scale(.92)}
   .ccard .cdd-trigger svg{transition:transform .25s}
   .ccard.open .cdd-trigger{border-color:var(--ochre);color:var(--ochre);background:rgba(74,142,255,.12)}
-  .ccard.open .cdd-trigger svg{transform:rotate(180deg)}
-  .ccard .menu{position:absolute;bottom:calc(100% + 8px);top:auto;left:0;right:0;
-    background:rgba(12,19,34,.97);backdrop-filter:blur(20px);
-    border:1px solid var(--line-2);border-radius:12px;max-height:0;overflow:hidden;z-index:40;
-    box-shadow:0 -16px 48px rgba(0,0,0,.6);
-    transition:max-height .3s cubic-bezier(.22,1,.36,1),opacity .2s;opacity:0;pointer-events:none}
-  .ccard.open .menu{max-height:420px;overflow:auto;opacity:1;pointer-events:auto}
-  .cdd .search-in{width:100%;padding:10px 12px 10px 36px;background:rgba(5,7,13,.5);
-    border:none;border-bottom:1px solid var(--line);color:var(--bone);font-size:12px;
-    outline:none;font-family:inherit}
+  .ccard.open .cdd-trigger svg{transform:rotate(90deg)}   /* › rotates to v on open */
+  /* menu now slides out to the RIGHT of ccard */
+  .ccard .menu{position:absolute;left:calc(100% + 10px);top:0;bottom:auto;right:auto;
+    width:280px;
+    background:linear-gradient(180deg,rgba(20,28,48,.92),rgba(10,16,30,.95));
+    backdrop-filter:blur(24px) saturate(1.4);
+    border:1px solid var(--line-2);border-radius:14px;max-height:0;overflow:hidden;z-index:40;
+    box-shadow:0 1px 0 rgba(255,255,255,.06) inset,16px 24px 60px rgba(0,0,0,.55),0 0 40px rgba(74,142,255,.06);
+    transition:max-height .3s cubic-bezier(.22,1,.36,1),opacity .2s,transform .25s;
+    opacity:0;pointer-events:none;transform:translateX(-8px)}
+  .ccard.open .menu{max-height:480px;overflow:auto;opacity:1;pointer-events:auto;transform:translateX(0)}
+  .cdd .search-in{width:100%;padding:11px 12px 11px 38px;background:rgba(5,7,13,.6);
+    border:none;border-bottom:1px solid var(--line);color:var(--bone);font-size:12.5px;
+    outline:none;font-family:inherit;letter-spacing:.01em}
   .cdd .search-in::placeholder{color:var(--dim)}
-  .cdd .search-ic{position:absolute;left:30px;top:13px;color:var(--muted);pointer-events:none}
-  .cdd .grp{font-size:9px;letter-spacing:.24em;color:var(--dim);padding:10px 14px 4px;
-    font-family:'JetBrains Mono'}
-  .cdd .opt{display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:12.5px;
-    cursor:pointer;transition:background .15s;color:var(--bone)}
-  .cdd .opt:hover{background:rgba(74,142,255,.08)}
-  .cdd .opt.on{background:rgba(74,142,255,.12)}
-  .cdd .opt .of{font-size:18px;width:24px;text-align:center;filter:grayscale(.3)}
-  .cdd .opt .oz{color:var(--muted);font-size:10.5px;margin-left:auto}
-  .cdd .opt .ot{width:6px;height:6px;border-radius:50%;background:var(--ochre);box-shadow:0 0 6px var(--ochre)}
+  .cdd .search-in:focus{background:rgba(5,7,13,.85);border-bottom-color:var(--ochre)}
+  .cdd .search-ic{position:absolute;left:14px;top:14px;color:var(--muted);pointer-events:none}
+  .cdd .grp{font-size:9px;letter-spacing:.26em;color:var(--ochre);padding:12px 14px 6px;
+    font-family:'JetBrains Mono';font-weight:500;text-transform:uppercase}
+  /* card-like list items (match parent ccard's .cc panel rhythm) */
+  .cdd .opt{display:flex;align-items:center;gap:11px;padding:10px 12px;font-size:12.5px;
+    cursor:pointer;transition:all .2s cubic-bezier(.34,1.56,.64,1);color:var(--bone);
+    margin:2px 8px;border-radius:10px;border:1px solid transparent;background:rgba(5,7,13,.35)}
+  .cdd .opt:hover{background:rgba(23,34,58,.7);border-color:var(--line-2);transform:translateX(2px)}
+  .cdd .opt.on{background:rgba(74,142,255,.1);border-color:rgba(74,142,255,.35);
+    box-shadow:0 0 0 1px rgba(74,142,255,.1) inset}
+  .cdd .opt .of{font-size:18px;width:26px;height:26px;display:grid;place-items:center;
+    background:rgba(5,7,13,.6);border:1px solid var(--line);border-radius:6px;
+    filter:grayscale(.3);flex-shrink:0}
+  .cdd .opt .oz{color:var(--muted);font-size:10.5px;margin-left:auto;
+    font-family:'JetBrains Mono';flex-shrink:0}
+  .cdd .opt.on .oz{color:var(--ochre)}
+  .cdd .opt .ot{width:6px;height:6px;border-radius:50%;background:var(--ochre);box-shadow:0 0 6px var(--ochre);flex-shrink:0}
   .cdd .opt .ot.t1{background:var(--sage);box-shadow:0 0 6px rgba(95,220,255,.5)}
   .cdd .opt .ot.t2{background:var(--dim);box-shadow:none}
 
@@ -375,10 +391,12 @@
   .rev-card::before{content:'"';position:absolute;top:-12px;right:10px;font-family:'Fraunces';font-style:italic;
     font-weight:300;font-size:54px;color:rgba(74,142,255,.13);line-height:1;pointer-events:none}
   .rev-card .rh{display:flex;align-items:center;gap:8px;margin-bottom:7px;position:relative}
-  .rev-card .av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
-    background:linear-gradient(135deg,#5fdcff 0%,#4a8eff 50%,#8a7dff 100%);color:#fff;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 2px 12px rgba(74,142,255,.4);
-    font-family:'Fraunces';font-style:italic;font-weight:400;font-size:12px;flex-shrink:0}
+  .rev-card .av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;
+    overflow:hidden;border:1px solid rgba(74,142,255,.3);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 2px 12px rgba(74,142,255,.25);
+    font-family:'Fraunces';font-style:italic;font-weight:400;font-size:12px}
+  .rev-card .av img{width:100%;height:100%;object-fit:cover;display:block}
+  .rev-card .av.av-fallback{background:linear-gradient(135deg,#5fdcff 0%,#4a8eff 50%,#8a7dff 100%);color:#fff}
   .rev-card .rn{flex:1;min-width:0}
   .rev-card .rn b{font-size:12px;color:var(--bone);font-weight:600;letter-spacing:-.005em;display:block;
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -392,14 +410,9 @@
   .rev-card .pills{position:absolute;top:10px;right:10px;display:flex;gap:5px;z-index:2}
 
   /* ---------- FOOTER ---------- */
-  .footer{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 16px;
-    font-size:10px;color:var(--dim);letter-spacing:.2em;font-family:'JetBrains Mono'}
-  .footer .l,.footer .r{display:flex;gap:18px;align-items:center;min-width:0;flex-shrink:1;overflow:hidden;white-space:nowrap}
-  .footer .r{justify-content:flex-end}
-  .footer .l span,.footer .r span,.footer b{white-space:nowrap;flex-shrink:0}
-  @media (max-width:1100px){ .footer .r > span:last-child{display:none} }  /* hide email on narrow screens */
-  .footer b{color:var(--muted);font-weight:500}
-  .footer .sep{color:var(--line-2)}
+  .footer{display:flex;align-items:center;justify-content:center;padding:0 16px;
+    font-size:10px;color:var(--muted);letter-spacing:.18em;font-family:'JetBrains Mono'}
+  .footer .footer-center{display:flex;align-items:center;gap:10px}
   .footer .live-dot{width:5px;height:5px;border-radius:50%;background:var(--sage);
     box-shadow:0 0 6px var(--sage);animation:blink 1.4s infinite}
 
@@ -479,7 +492,7 @@
             <div class="iso" id="cIso">USA · N-AMERICA</div>
           </div>
           <button class="cdd-trigger" id="cddBtn" aria-label="Switch market" type="button">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
           </button>
         </div>
         <div class="menu" id="cddMenu">
@@ -536,20 +549,9 @@
 
   <!-- FOOTER -->
   <div class="footer">
-    <div class="l">
+    <div class="footer-center">
       <span class="live-dot"></span>
-      <b>FANSAI / FSCITY.ART</b>
-      <span class="sep">/</span>
-      <span>v2.6 · MARKETRACK</span>
-      <span class="sep">/</span>
-      <span>EDITION 0430</span>
-    </div>
-    <div class="r">
-      <span>CONTENT IS BUSINESS</span>
-      <span class="sep">·</span>
-      <span>AI-NATIVE / SINCE 2024</span>
-      <span class="sep">·</span>
-      <span>nico.zeng@fscity.art</span>
+      <span id="footerTs">数据更新时间: --:--</span>
     </div>
   </div>
 </div>
@@ -582,7 +584,6 @@ const I18N = {
     origin:'原文', globalView:'全球视图', dragHint:'· 拖动地球切换本地视图',
     noSignals:(p)=>`此市场暂无 <b style="color:var(--bone)">${p}</b> 信号。`,
     sigsCount:'条信号',
-    footL:'v2.6 · 内容雷达', footEd:'版本 0430', footR1:'内容即业务', footR2:'AI 原生 / 创立于 2024',
     live:'实时', live2:'实时',
   },
   en:{
@@ -606,7 +607,6 @@ const I18N = {
     origin:'ORIGIN', globalView:'GLOBAL VIEW', dragHint:'· drag globe to localize',
     noSignals:(p)=>`No <b style="color:var(--bone)">${p}</b> signals for this market yet.`,
     sigsCount:'signals',
-    footL:'v2.6 · MARKETRACK', footEd:'EDITION 0430', footR1:'CONTENT IS BUSINESS', footR2:'AI-NATIVE / SINCE 2024',
     live:'LIVE', live2:'LIVE',
   }
 };
@@ -635,18 +635,18 @@ const COUNTRIES = [
 
 const CASES={
   trending:[
-    {n:'TCL Winter Olympics · Brand Film',cli:'TCL × Olympic Global Partner',hot:9.8,region:'全球 / 欧洲',region_en:'Global / Europe',tags:[],m1:'Strategic Global',m2:'Cinema-Grade'},
-    {n:'Momcozy × BIG HUGS · Christmas',cli:'Momcozy USA · 14-Day Advent',hot:9.6,region:'北美 / 美国',region_en:'N.America / USA',tags:[],m1:'2D + 3D AI Real-time',m2:'Home Alone Universe'},
-    {n:'Miniso × F1 × Disney · Triple IP',cli:'MINISO Global',hot:9.5,region:'全球 / 欧洲',region_en:'Global / Europe',tags:[],m1:'10-day Disney approval',m2:'Full-Sequence AI'},
-    {n:'Miniso × Zootopia 2',cli:'MINISO × Disney',hot:9.3,region:'全球 / 大中华',region_en:'Global / Greater China',tags:[],m1:'Disney 1st-pass · 10 days',m2:'Telescopic IP transition'},
-    {n:'MAOGEPING · Dunhuang Apsaras',cli:'MAOGEPING / 毛戈平',hot:9.2,region:'大中华 / 全球',region_en:'Greater China / Global',tags:[],m1:'Cultural Heritage AI',m2:'Cracking → Restoration'},
-    {n:'Tales of Shan Hai · AIGC Short',cli:'Sion / FansAI Creative',hot:9.0,region:'大中华 / 全球',region_en:'Greater China / Global',tags:[],m1:'SIFF · BJIFF',m2:'AIGC Film Unit'},
-    {n:'Satine Vitality · TVC-Grade Brand Film',cli:'SATINE / 伊利金典',hot:8.9,region:'大中华',region_en:'Greater China',tags:[],m1:'Full-Sequence AI',m2:'Original AI Protagonist'},
-    {n:'Satine · Spring Festival Viral',cli:'SATINE / 伊利金典',hot:8.7,region:'大中华',region_en:'Greater China',tags:[],m1:'AI Score + Protagonist',m2:'New Year Campaign'},
-    {n:'YOGO Robot · Brand Going Global',cli:'YOGO Robot × Overseas',hot:8.5,region:'欧洲 / 韩国',region_en:'Europe / Korea',tags:[],m1:'Brand Repositioning',m2:'Human-Centric Tech'},
-    {n:'Royal Kiln · Night Market Light Show',cli:'Suzhou Museum · ICH Project',hot:8.4,region:'大中华 / 亚太',region_en:'Greater China / APAC',tags:[],m1:'AI Projection Mapping',m2:'1st AI ICH Light Show'},
-    {n:'HLA · Seasonal Launch Campaign',cli:'HLA 海澜之家',hot:8.2,region:'大中华',region_en:'Greater China',tags:[],m1:'Bespoke AI Models',m2:'Precision Logo Rendering'},
-    {n:'MAOGEPING · Ski Season',cli:'MAOGEPING / 毛戈平',hot:8.0,region:'大中华',region_en:'Greater China',tags:[],m1:'Narrative Comedy',m2:'Full-Sequence AI'},
+    {n:'TCL Winter Olympics · Brand Film',cli:'TCL × Olympic Global Partner',hot:9.8,region:'全球 / 欧洲',region_en:'Global / Europe',img:'./tcl-winter.jpg',tags:[],m1:'Strategic Global',m2:'Cinema-Grade'},
+    {n:'Momcozy × BIG HUGS · Christmas',cli:'Momcozy USA · 14-Day Advent',hot:9.6,region:'北美 / 美国',region_en:'N.America / USA',img:'./momcozy-bighugs.jpg',tags:[],m1:'2D + 3D AI Real-time',m2:'Home Alone Universe'},
+    {n:'Miniso × F1 × Disney · Triple IP',cli:'MINISO Global',hot:9.5,region:'全球 / 欧洲',region_en:'Global / Europe',img:'./miniso-f1-disney.jpg',tags:[],m1:'10-day Disney approval',m2:'Full-Sequence AI'},
+    {n:'Miniso × Zootopia 2',cli:'MINISO × Disney',hot:9.3,region:'全球 / 大中华',region_en:'Global / Greater China',img:'./miniso-zootopia.jpg',tags:[],m1:'Disney 1st-pass · 10 days',m2:'Telescopic IP transition'},
+    {n:'MAOGEPING · Dunhuang Apsaras',cli:'MAOGEPING / 毛戈平',hot:9.2,region:'大中华 / 全球',region_en:'Greater China / Global',img:'./maogeping-dunhuang.jpg',tags:[],m1:'Cultural Heritage AI',m2:'Cracking → Restoration'},
+    {n:'Tales of Shan Hai · AIGC Short',cli:'Sion / FansAI Creative',hot:9.0,region:'大中华 / 全球',region_en:'Greater China / Global',img:'https://images.unsplash.com/photo-1542401886-65d6c61db217?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'SIFF · BJIFF',m2:'AIGC Film Unit'},
+    {n:'Satine Vitality · TVC-Grade Brand Film',cli:'SATINE / 伊利金典',hot:8.9,region:'大中华',region_en:'Greater China',img:'./satine-spring.jpg',tags:[],m1:'Full-Sequence AI',m2:'Original AI Protagonist'},
+    {n:'Satine · Spring Festival Viral',cli:'SATINE / 伊利金典',hot:8.7,region:'大中华',region_en:'Greater China',img:'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'AI Score + Protagonist',m2:'New Year Campaign'},
+    {n:'YOGO Robot · Brand Going Global',cli:'YOGO Robot × Overseas',hot:8.5,region:'欧洲 / 韩国',region_en:'Europe / Korea',img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'Brand Repositioning',m2:'Human-Centric Tech'},
+    {n:'Royal Kiln · Night Market Light Show',cli:'Suzhou Museum · ICH Project',hot:8.4,region:'大中华 / 亚太',region_en:'Greater China / APAC',img:'https://images.unsplash.com/photo-1545569310-66b9ac4a91d8?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'AI Projection Mapping',m2:'1st AI ICH Light Show'},
+    {n:'HLA · Seasonal Launch Campaign',cli:'HLA 海澜之家',hot:8.2,region:'大中华',region_en:'Greater China',img:'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'Bespoke AI Models',m2:'Precision Logo Rendering'},
+    {n:'MAOGEPING · Ski Season',cli:'MAOGEPING / 毛戈平',hot:8.0,region:'大中华',region_en:'Greater China',img:'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=200&h=200&fit=crop&auto=format&q=80',tags:[],m1:'Narrative Comedy',m2:'Full-Sequence AI'},
   ],
   campaign:[
     {n:'Targeted Temperature for Every Space',cli:'TCL × Global Olympic Partner',tags:[['TVC','k'],['Cinema-Grade','s'],['Olympic','t']],m1:'42M reach',m2:'30+ awards'},
@@ -1055,9 +1055,12 @@ function renderCasesView(){
   const hint=`<div style="padding:10px 18px 4px;font-size:10.5px;color:var(--dim);letter-spacing:.04em">${L.lCases.hint}</div>`;
   const list=`<div class="list">${arr.map((c,i)=>{
     const region = LANG==='zh' ? c.region : (c.region_en || c.region);
+    const thumb = c.img
+      ? `<div class="thumb"><img src="${c.img}" alt="" loading="lazy" onerror="this.parentElement.classList.add('thumb-fallback');this.remove();"/></div>`
+      : `<div class="thumb thumb-fallback"></div>`;
     return `<div class="crow ${i===0?'on':''}">
       <div class="rk-chip">${String(i+1).padStart(2,'0')}</div>
-      <div class="thumb"></div>
+      ${thumb}
       <div class="ci">
         <div class="nm">${c.n}</div>
         <div class="heat-row"><span class="heat">${c.hot.toFixed(1)}</span><span class="heat-lb">${L.lCases.heatLb}</span></div>
@@ -1160,7 +1163,7 @@ function buildReviewCard(r,i){
   return `<div class="rev-card">
     <div class="pills">${toggle}</div>
     <div class="rh">
-      <div class="av">${r.who[0]}</div>
+      <div class="av"><img src="https://i.pravatar.cc/64?u=${encodeURIComponent(r.who+r.org)}" alt="${r.who}" loading="lazy" onerror="this.parentElement.textContent='${r.who[0]}';this.parentElement.classList.add('av-fallback')"/></div>
       <div class="rn"><b>${r.who}</b><small>${r.role} · ${r.org}</small></div>
     </div>
     <div class="stars">${stars}</div>
@@ -1341,10 +1344,8 @@ function applyI18n(){
   document.getElementById('cddSearch').placeholder=L.cdd.searchPh;
   // rtabs removed — no-op
   // footer
-  const fL=document.querySelector('.footer .l');
-  fL.innerHTML=`<span class="live-dot"></span><b>FANSAI / FSCITY.ART</b><span class="sep">/</span><span>${L.footL}</span><span class="sep">/</span><span>${L.footEd}</span>`;
-  const fR=document.querySelector('.footer .r');
-  fR.innerHTML=`<span>${L.footR1}</span><span class="sep">·</span><span>${L.footR2}</span><span class="sep">·</span><span>nico.zeng@fscity.art</span>`;
+  // footer simplified to single centered timestamp
+  if(typeof tickFooterTs === 'function') tickFooterTs();
   // re-render dynamic
   buildCddList(document.getElementById('cddSearch').value);
   renderSignals();
@@ -1642,9 +1643,17 @@ setInterval(()=>{
   document.getElementById('tProj').textContent=T_PROJ[Math.floor(Math.random()*T_PROJ.length)];
   document.getElementById('tStat').textContent=T_STAT[Math.floor(Math.random()*T_STAT.length)];
 },2400);
-setInterval(()=>{
-  // utc element removed
-},1000);
+// footer timestamp — minute precision, updates every 30s
+function tickFooterTs(){
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const ts = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const lb = LANG==='zh' ? '数据更新时间' : 'DATA UPDATED';
+  const el = document.getElementById('footerTs');
+  if(el) el.textContent = `${lb}: ${ts}`;
+}
+tickFooterTs();
+setInterval(tickFooterTs, 30000);
 
 // initial i18n pass (default 中)
 applyI18n();
